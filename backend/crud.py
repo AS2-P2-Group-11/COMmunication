@@ -3,11 +3,11 @@ from sqlalchemy.orm import Session
 import models, schemas
 
 
-def get_category(db: Session, category_id: int):
+def get_category_by_id(db: Session, category_id: int):
     return db.query(models.Category).filter(models.Category.id == category_id).first()
 
 
-def delete_category(db: Session, category_id: int):
+def delete_category_by_id(db: Session, category_id: int):
     obj = db.query(models.Category).filter(models.Category.id == category_id).first()
     try:
         db.delete(obj)
@@ -29,6 +29,6 @@ def create_category(db: Session, category: schemas.CategoryCreate):
     return db_category
 
 
-def get_category_items(db: Session, category_id: int, skip: int=0, limit: int = 100):
+def get_category_items_by_id(db: Session, category_id: int, skip: int=0, limit: int = 100):
     return db.query(models.Item).filter(models.Item.category_id == category_id).offset(skip).limit(limit).all()
 
