@@ -51,3 +51,11 @@ def get_category_items_by_name(db: Session, category_name: str, skip: int = 0, l
     category = get_category_by_name(db, category_name=category_name)
     return db.query(models.Item).filter(models.Item.category_id == category.id).offset(skip).limit(limit).all()
 
+
+def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_id):
+    db_item = models.Item(title=item.title, category_id=category_id,  price=item.price)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+

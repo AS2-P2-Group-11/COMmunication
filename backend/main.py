@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from fastapi import Depends, FastAPI, HTTPException
 from sqlalchemy.orm import Session
@@ -65,6 +65,12 @@ def write_category(category: schemas.CategoryCreate, db: Session = Depends(get_d
 @app.get("/category_by_id/{category_id}/items", response_model=List[schemas.Item])
 def read_category_items_by_category_id(category_id, skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     items = crud.get_category_items_by_id(db, category_id=category_id, skip=skip, limit=limit)
+    return items
+
+
+@app.post("/category_by_id/{category_id}/items", response_model=schemas.Item)
+def write_category_items_by_category_id(category_id, item: schemas.ItemCreate, db: Session = Depends(get_db)):
+    items = crud.create_category_items_by_id(db, category_id=category_id, item=item)
     return items
 
 
