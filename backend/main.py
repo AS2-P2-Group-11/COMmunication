@@ -33,8 +33,16 @@ def read_category(category_id: int, db: Session = Depends(get_db)):
     return category
 
 
-@app.post("/categories/", response_model=schemas.Category)
-def create_user(category: schemas.CategoryCreate, db: Session = Depends(get_db)):
+@app.delete("/categories/{category_id}", response_model=schemas.Category, status_code=200)
+def remove_category(category_id: int, db: Session = Depends(get_db)):
+    category = crud.delete_category(db, category_id=category_id)
+    if category is None:
+        raise HTTPException(status_code=404, detail="Category not found")
+    return category
+
+
+@app.post("/categories/", response_model=schemas.Category, status_code=201)
+def write_category(category: schemas.CategoryCreate, db: Session = Depends(get_db)):
     return crud.create_category(db=db, category=category)
 
 
