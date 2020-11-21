@@ -12,6 +12,9 @@ def get_category_by_name(db: Session, category_name: str):
 
 
 def delete_category_by_id(db: Session, category_id: int):
+    items = get_category_items_by_id(db, category_id=category_id)
+    for item in items:
+        delete_item_by_id(db, item.id)
     obj = db.query(models.Category).filter(models.Category.id == category_id).first()
     try:
         db.delete(obj)
@@ -22,6 +25,9 @@ def delete_category_by_id(db: Session, category_id: int):
 
 
 def delete_category_by_name(db: Session, category_name: str):
+    items = get_category_items_by_name(db, category_name=category_name)
+    for item in items:
+        delete_item_by_id(db, item.id)
     obj = db.query(models.Category).filter(models.Category.name == category_name).first()
     try:
         db.delete(obj)
