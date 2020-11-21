@@ -59,3 +59,35 @@ def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_
     db.refresh(db_item)
     return db_item
 
+
+def create_category_items_by_name(db: Session, item: schemas.ItemCreate, category_name):
+    category = get_category_by_name(db, category_name=category_name)
+    db_item = models.Item(title=item.title, category_id=category.id,  price=item.price)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_item_by_id(db: Session, item_id: int):
+    return db.query(models.Item).filter(models.Item.id == item_id).first()
+
+
+def get_item_by_title(db: Session, item_title: str):
+    return db.query(models.Item).filter(models.Item.title == item_title).first()
+
+
+def delete_item_by_id(db: Session, item_id: int):
+    item = get_item_by_id(db, item_id=item_id)
+    try:
+        db.delete(item)
+        db.commit()
+    except:
+        return None
+    return item
+
+
+def delete_item_by_title(db: Session, item_title: str):
+    item = get_item_by_title(db, item_title=item_title)
+    delete_item_by_id(db, item_id=item.id)
+    return item

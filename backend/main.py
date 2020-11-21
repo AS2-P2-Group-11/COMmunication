@@ -80,6 +80,40 @@ def read_category_items_by_category_name(category_name, skip: int = 0, limit: in
     return items
 
 
+@app.post("/category_by_name/{category_name}/items", response_model=schemas.Item)
+def write_category_items_by_category_name(category_name, item: schemas.ItemCreate, db: Session = Depends(get_db)):
+    items = crud.create_category_items_by_name(db, category_name=category_name, item=item)
+    return items
 
 
+@app.get("/item_by_id/{item_id}", response_model=schemas.Item)
+def read_item_by_id(item_id: int, db: Session = Depends(get_db)):
+    item = crud.get_item_by_id(db, item_id=item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.delete("/item_by_id/{item_id}", response_model=schemas.Item, status_code=200)
+def remove_item_by_id(item_id: int, db: Session = Depends(get_db)):
+    item = crud.delete_item_by_id(db, item_id=item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.get("/item_by_title/{item_title}", response_model=schemas.Item)
+def read_item_by_title(item_title: str, db: Session = Depends(get_db)):
+    item = crud.get_item_by_title(db, item_title=item_title)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+
+@app.delete("/item_by_title/{item_title}", response_model=schemas.Item, status_code=200)
+def remove_item_by_title(item_title: str, db: Session = Depends(get_db)):
+    item = crud.delete_item_by_title(db, item_title=item_title)
+    if item is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
 
