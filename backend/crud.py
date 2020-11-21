@@ -122,3 +122,14 @@ def delete_order(db: Session, order_id: int):
         return None
     return order
 
+
+def update_order(db: Session, order_id: int, status: str):
+    order = get_order_by_id(db, order_id=order_id)
+    order.status = status
+    try:
+        db.commit()
+    except:
+        return None
+    return order
+
+

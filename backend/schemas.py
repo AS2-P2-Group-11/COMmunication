@@ -1,4 +1,4 @@
-from typing import List, Literal
+from typing import List, Literal, Optional
 
 from common import Status
 
@@ -60,13 +60,14 @@ class OrderItem(OrderItemBase):
 class OrderBase(BaseModel):
     status: Status = Status.submitted
 
+
 class OrderCreate(OrderBase):
     pass
 
 
 class Order(OrderBase):
-    id: int
-    date: datetime
+    id: Optional[int]
+    date: Optional[datetime]
     items: List[OrderItem] = []
 
     class Config:
