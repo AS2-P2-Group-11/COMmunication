@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
-import models, schemas
+from datetime import datetime
+
+import models, schemas, common
 
 
 def get_category_by_id(db: Session, category_id: int):
@@ -97,3 +99,15 @@ def delete_item_by_title(db: Session, item_title: str):
     item = get_item_by_title(db, item_title=item_title)
     delete_item_by_id(db, item_id=item.id)
     return item
+
+
+def get_order_by_id(db: Session, order_id: int):
+    return db.query(models.Order).filter(models.Order.id == order_id).first()
+
+
+def create_order(db: Session, date: datetime, status: str, order: schemas.OrderCreate):
+    db_order = models.Order(status=status, date=date)
+    db.add(db_order)
+    db.commit()
+    db.refresh(db_order)
+    return db_order

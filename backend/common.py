@@ -1,4 +1,6 @@
 import os
+from enum import Enum
+
 try:
     from configparser import ConfigParser, NoOptionError, NoSectionError, MissingSectionHeaderError, ParsingError
 except ImportError:
@@ -26,3 +28,8 @@ class ConfigManager(ConfigParser):
                 return ("Error in parsing"
                         "config file: {}").format(self._configfile)
 
+
+class Status(str, Enum):
+    submitted = "submitted"
+    confirmed = "confirmed"
+    ready = "ready"

@@ -56,7 +56,7 @@ class OrderItem(OrderItemBase):
 
 
 class OrderBase(BaseModel):
-    date: datetime
+    pass
 
 
 class OrderCreate(OrderBase):
@@ -65,6 +65,8 @@ class OrderCreate(OrderBase):
 
 class Order(OrderBase):
     id: int
+    date: datetime
+    status: str
     items: List[OrderItem] = []
 
     class Config:
