@@ -111,3 +111,14 @@ def create_order(db: Session, date: datetime, status: str, order: schemas.OrderC
     db.commit()
     db.refresh(db_order)
     return db_order
+
+
+def delete_order(db: Session, order_id: int):
+    order = get_order_by_id(db, order_id=order_id)
+    try:
+        db.delete(order)
+        db.commit()
+    except:
+        return None
+    return order
+

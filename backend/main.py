@@ -118,7 +118,7 @@ def remove_item_by_title(item_title: str, db: Session = Depends(get_db)):
     return item
 
 
-@app.get("/order_by_id/{order_id}", response_model=schemas.Order)
+@app.get("/order/{order_id}", response_model=schemas.Order)
 def read_order_by_id(order_id: int, db: Session = Depends(get_db)):
     order = crud.get_order_by_id(db, order_id=order_id)
     if order is None:
@@ -130,3 +130,13 @@ def read_order_by_id(order_id: int, db: Session = Depends(get_db)):
 def write_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
     order = crud.create_order(db, order=order, date=datetime.datetime.now(), status=common.Status.submitted)
     return order
+
+
+@app.delete("/order/{order_id}", response_model=schemas.Order, status_code=200)
+def remove_oder(order_id: int, db: Session = Depends(get_db)):
+    order = crud.delete_order(db, order_id=order_id)
+    if order is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return order
+
+
