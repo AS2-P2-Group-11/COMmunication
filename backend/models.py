@@ -30,6 +30,7 @@ class Order(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     date = Column(DateTime, default=datetime.datetime.now)
+    status = Column(String(50), index=True)
     items = relationship("OrderItem", back_populates="order")
 
 
