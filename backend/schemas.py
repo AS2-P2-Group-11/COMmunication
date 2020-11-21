@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Literal
+
+from common import Status
 
 from datetime import datetime
 
@@ -56,8 +58,7 @@ class OrderItem(OrderItemBase):
 
 
 class OrderBase(BaseModel):
-    pass
-
+    status: Status = Status.submitted
 
 class OrderCreate(OrderBase):
     pass
@@ -66,7 +67,6 @@ class OrderCreate(OrderBase):
 class Order(OrderBase):
     id: int
     date: datetime
-    status: str
     items: List[OrderItem] = []
 
     class Config:
