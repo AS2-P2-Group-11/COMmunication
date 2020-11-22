@@ -115,6 +115,9 @@ def create_order(db: Session, date: datetime, status: str, order: schemas.OrderC
 
 def delete_order(db: Session, order_id: int):
     order = get_order_by_id(db, order_id=order_id)
+    for item in order.items:
+        db.delete(item)
+        db.commit()
     try:
         db.delete(order)
         db.commit()

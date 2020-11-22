@@ -133,7 +133,7 @@ def write_order(order: schemas.OrderCreate, db: Session = Depends(get_db)):
 
 
 @app.delete("/order/{order_id}", response_model=schemas.Order, status_code=200)
-def remove_oder(order_id: int, db: Session = Depends(get_db)):
+def remove_order(order_id: int, db: Session = Depends(get_db)):
     order = crud.delete_order(db, order_id=order_id)
     if order is None:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -141,7 +141,7 @@ def remove_oder(order_id: int, db: Session = Depends(get_db)):
 
 
 @app.patch("/order/{order_id}", response_model=schemas.Order, status_code=200)
-def remove_oder(order: schemas.Order, order_id: int, db: Session = Depends(get_db)):
+def update_oder(order: schemas.Order, order_id: int, db: Session = Depends(get_db)):
     order = crud.update_order(db, order_id=order_id, status=order.status)
     if order is None:
         raise HTTPException(status_code=404, detail="Item not found")
