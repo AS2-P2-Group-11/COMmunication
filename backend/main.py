@@ -174,3 +174,11 @@ def update_item_by_id_to_order(order_id, item: schemas.OrderItemBaseAdd, db: Ses
     else:
         raise HTTPException(status_code=400, detail="No item is added to order")
 
+
+@app.patch("/order/{order_id}/item_by_title")
+def update_item_by_title_to_order(order_id, item: schemas.OrderItemBaseNameAdd, db: Session = Depends(get_db)):
+    if item.quantity >= 0:
+        crud.update_item_by_title_to_order(db, items=item, order_id=order_id)
+        return {"info": "item updated to order"}
+    else:
+        raise HTTPException(status_code=400, detail="No item is added to order")

@@ -166,6 +166,22 @@ def update_item_by_id_to_order(db: Session, order_id: int, items: schemas.OrderI
     return order
 
 
+def update_item_by_title_to_order(db: Session, order_id: int, items: schemas.OrderItemBaseNameAdd):
+    order = get_order_by_id(db, order_id=order_id)
+    for item in order.items:
+        if items.quantity > 0:
+            if item.item.title == items.item_title:
+                item.quantity = items.quantity
+        else:
+            db.delete(item)
+            db.commit()
+    try:
+        db.commit()
+    except:
+        return None
+    return order
+
+
 
 
 
