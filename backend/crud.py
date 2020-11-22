@@ -137,6 +137,12 @@ def update_order(db: Session, order_id: int, status: str):
 
 
 def add_item_by_id_to_order(db: Session, item: schemas.OrderItemBaseAdd,  order_id: int):
+    order = get_order_by_id(db, order_id=order_id)
+    for itemd in order.items:
+        if itemd.item.id == item.item_id:
+            item.quantity = itemd.quantity + item.quantity
+            db.delete(itemd)
+            db.commit()
     db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=item.item_id)
     db.add(db_item)
     db.commit()
