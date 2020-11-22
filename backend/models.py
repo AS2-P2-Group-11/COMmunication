@@ -42,4 +42,4 @@ class OrderItem(Base):
     item = relationship("Item", back_populates="order_items")
     quantity = Column(Integer)
     order_id = Column(Integer, ForeignKey("orders.id"))
-    order = relationship("Order", back_populates="items")
+    order = relationship("Order", back_populates="items", uselist=False)

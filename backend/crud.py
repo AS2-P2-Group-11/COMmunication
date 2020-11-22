@@ -133,12 +133,23 @@ def update_order(db: Session, order_id: int, status: str):
     return order
 
 
-def add_item_by_id_to_order(db: Session, order_id: int, item: schemas.OrderItemCreate):
+def add_item_by_id_to_order(db: Session, item: schemas.OrderItemBaseAdd,  order_id: int):
     db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=item.item_id)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
     return db_item
+
+
+def add_item_by_title_to_order(db: Session, order_id: int, item: schemas.OrderItemBaseNameAdd):
+    temp_item = get_item_by_title(db, item_title=item.item_title)
+    db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=temp_item.id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
 
 
 

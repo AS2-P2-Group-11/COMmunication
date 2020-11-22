@@ -41,7 +41,7 @@ class Category(CategoryBase):
 
 
 class OrderItemBase(BaseModel):
-    item_id: int
+    item: Optional[Item]
     quantity: int
 
 
@@ -55,6 +55,16 @@ class OrderItem(OrderItemBase):
 
     class Config:
         orm_mode = True
+
+
+class OrderItemBaseAdd(BaseModel):
+    item_id: int
+    quantity: int
+
+
+class OrderItemBaseNameAdd(BaseModel):
+    item_title: str
+    quantity: int
 
 
 class OrderBase(BaseModel):
