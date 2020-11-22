@@ -1,0 +1,12 @@
+version: '3.4'
+services:
+  mysql:
+    image: percona:8.0
+    network_mode: "host"
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_USER: yggdrasil
+      MYSQL_PASSWORD: yggdrasil
+      MYSQL_DATABASE: communication_db
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
