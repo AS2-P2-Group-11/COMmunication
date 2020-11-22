@@ -148,3 +148,12 @@ def remove_oder(order: schemas.Order, order_id: int, db: Session = Depends(get_d
     return order
 
 
+@app.post("/order/{order_id}/item_by_id", response_model=schemas.OrderItem)
+def add_item_to_order(order_id, item: schemas.OrderItemCreate, db: Session = Depends(get_db)):
+    order = crud.add_item_to_order(db, item=item, order_id=order_id)
+    return order
+
+
+
+
+

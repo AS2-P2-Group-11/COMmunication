@@ -133,3 +133,12 @@ def update_order(db: Session, order_id: int, status: str):
     return order
 
 
+def add_item_by_id_to_order(db: Session, order_id: int, item: schemas.OrderItemCreate):
+    db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=item.item_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+
