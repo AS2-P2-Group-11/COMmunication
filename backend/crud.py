@@ -141,7 +141,6 @@ def add_item_by_id_to_order(db: Session, item: schemas.OrderItemBaseAdd,  order_
     return db_item
 
 
-
 def add_item_by_title_to_order(db: Session, order_id: int, item: schemas.OrderItemBaseNameAdd):
     temp_item = get_item_by_title(db, item_title=item.item_title)
     db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=temp_item.id)
@@ -150,6 +149,21 @@ def add_item_by_title_to_order(db: Session, order_id: int, item: schemas.OrderIt
     db.refresh(db_item)
     return db_item
 
+
+def update_item_by_id_to_order(db: Session, order_id: int, items: schemas.OrderItemBaseAdd):
+    order = get_order_by_id(db, order_id=order_id)
+    for item in order.items:
+        if items.quantity > 0:
+            if item.item.id == items.item_id:
+                item.quantity = items.quantity
+        else:
+            db.delete(item)
+            db.commit()
+    try:
+        db.commit()
+    except:
+        return None
+    return order
 
 
 
