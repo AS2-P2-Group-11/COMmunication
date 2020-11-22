@@ -19,7 +19,6 @@ In order to setup the project, just clone the project. If you have installed git
 
     git clone https://github.com/AS2-P2-Group-11/COMmunicationBackend.git
     bash build-env.sh
-    docker-compose up -d
     
 ## Access the documentation
 To access the documentation, after installation and seting up, open either one of:
