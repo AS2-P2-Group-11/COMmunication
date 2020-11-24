@@ -7,7 +7,11 @@ import furhatos.nlu.ListEntity
 import furhatos.util.Language
 import furhatos.nlu.common.Number
 
-
+/**
+ * Intent. The user wants to know what options are currently available.
+ *
+ * The response should be context sensitive.
+ */
 class RequestOptions: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("What options do you have?",
@@ -17,6 +21,9 @@ class RequestOptions: Intent() {
     }
 }
 
+/**
+ * Intent. The system has asked whether something should be added or removed. The user indicates "Add"
+ */
 class Add: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("I'll add something",
@@ -25,6 +32,10 @@ class Add: Intent() {
                 "I'll add, please")
     }
 }
+
+/**
+ * Intent. The system has asked whether something should be added or removed. The user indicates "Remove"
+ */
 
 class Remove: Intent() {
     override fun getExamples(lang: Language): List<String> {
@@ -35,6 +46,10 @@ class Remove: Intent() {
     }
 }
 
+/**
+ * EnumEntity. All available categories.
+ * Currently hardcoded, should be fetched from API.
+ */
 class Category: EnumEntity(stemming = true, speechRecPhrases = true) {
     override fun getEnum(lang: Language): List<String> {
         //return FastAPI.get(categories)
@@ -42,6 +57,10 @@ class Category: EnumEntity(stemming = true, speechRecPhrases = true) {
     }
 }
 
+/**
+ * EnumEntity. All available items.
+ * Currently hardcoded, should be fetched from API.
+ */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
     override fun getEnum(lang: Language): List<String> {
         //return FastAPI.get(items)
@@ -49,14 +68,9 @@ class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
     }
 }
 
-class ChooseCategory(var category: Category? = null): Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("@category",
-                "Something from @category",
-                "What do you have in @category ?")
-    }
-}
-
+/**
+ * EnumEntity. Numbered items, see Fruit Seller example.
+ */
 class QuantifiedItem(
         val count : Number? = Number(1),
         val item : Item? = null) : ComplexEnumEntity() {
@@ -70,6 +84,21 @@ class QuantifiedItem(
     }
 }
 
+
+/**
+ * Intent. The user is choosing which category to find item from.
+ */
+class ChooseCategory(var category: Category? = null): Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("@category",
+                "Something from @category",
+                "What do you have in @category ?")
+    }
+}
+
+/**
+ * Intent. The user wishes to add a specific item to their shopping cart.
+ */
 class AddItem(var item: QuantifiedItem): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("@item",
@@ -79,6 +108,9 @@ class AddItem(var item: QuantifiedItem): Intent(){
     }
 }
 
+/**
+ * Intent. The user wishes to remove a specific item from their shopping cart.
+ */
 class RemoveItem(var item: QuantifiedItem): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("I don't need @item",
@@ -89,8 +121,14 @@ class RemoveItem(var item: QuantifiedItem): Intent(){
     }
 }
 
+/**
+ * ListEntity. A lists of numerals constitutes a tracking number.
+ */
 class TrackingNumber: ListEntity<Numeral>()
 
+/**
+ * EnumEntity. Could probably be done easier, but this is a way to concretisize numerals.
+ */
 class Numeral(val num: Number? = Number(0)): ComplexEnumEntity(){
     override fun getEnum(lang: Language): List<String> {
         return listOf("@num")
@@ -101,6 +139,9 @@ class Numeral(val num: Number? = Number(0)): ComplexEnumEntity(){
     }
 }
 
+/**
+ * Intent. The user is inputting a tracking number into the system upon request.
+ */
 class InputTrackingNumber(var trackingNumber: TrackingNumber? = null): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("@trackingNumber",
@@ -109,6 +150,9 @@ class InputTrackingNumber(var trackingNumber: TrackingNumber? = null): Intent(){
     }
 }
 
+/**
+ * Intent. The user is checking out their shopping cart.
+ */
 class Checkout: Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("I'm done shopping",
@@ -118,6 +162,9 @@ class Checkout: Intent(){
     }
 }
 
+/**
+ * Intent. The user is aborting the current operation. The system should return to root state.
+ */
 class Abort: Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("Never mind",
@@ -126,6 +173,9 @@ class Abort: Intent(){
     }
 }
 
+/**
+ * Intent. The user indicates that they are leaving the system.
+ */
 class GoodBye: Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("Good bye",
@@ -136,6 +186,9 @@ class GoodBye: Intent(){
     }
 }
 
+/**
+ * Intent. The user wishes to check the contents of their shopping cart.
+ */
 class CheckShoppingCart: Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("What's in my shopping cart?",
@@ -144,6 +197,9 @@ class CheckShoppingCart: Intent(){
     }
 }
 
+/**
+ * Intent. The user wants to place a new order. Should only be called from root state.
+ */
 class PlaceOrder: Intent() {
     override fun getExamples(lang: Language): List<String> {
     return listOf("I'd like to place an order",
@@ -152,6 +208,9 @@ class PlaceOrder: Intent() {
     }
 }
 
+/**
+ * Intent. The user wants to cancel an existing order. Should only be called from root state.
+ */
 class CancelOrder: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("I'd like to cancel my order",
@@ -160,6 +219,9 @@ class CancelOrder: Intent() {
     }
 }
 
+/**
+ * Intent. The user wants to change an existing order. Should only be called from root state.
+ */
 class ChangeOrder: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("I'd like to change my order",
@@ -168,6 +230,9 @@ class ChangeOrder: Intent() {
     }
 }
 
+/**
+ * Intent. The user wants to check the status of an existing order. Should only be called from root state.
+ */
 class CheckStatus: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("What's my order status?",
