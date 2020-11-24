@@ -40,8 +40,9 @@ products = {
         },
     ]
 }
-
-for category, list_prod in products.items():
-    test = requests.post(api+"/categories/", json={"name": str(category)}, headers=headers )
-    for product in list_prod:
-        requests.post(api+"/category_by_name/"+category+"/items", json=product, headers=headers)
+check_for_result = requests.get(api+"/categories/").json()
+if len(check_for_result) == 0:
+    for category, list_prod in products.items():
+        test = requests.post(api+"/categories/", json={"name": str(category)}, headers=headers )
+        for product in list_prod:
+            requests.post(api+"/category_by_name/"+category+"/items", json=product, headers=headers)
