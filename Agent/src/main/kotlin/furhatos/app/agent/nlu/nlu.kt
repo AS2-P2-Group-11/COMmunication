@@ -127,7 +127,7 @@ class RemoveItem(var item: QuantifiedItem): Intent(){
 class TrackingNumber: ListEntity<Numeral>()
 
 /**
- * EnumEntity. Could probably be done easier, but this is a way to concretisize numerals.
+ * EnumEntity. Could probably be done easier, but this is a way to make numerals concrete.
  */
 class Numeral(val num: Number? = Number(0)): ComplexEnumEntity(){
     override fun getEnum(lang: Language): List<String> {
