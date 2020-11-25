@@ -11,7 +11,7 @@ services:
     volumes:
       - ./db:/docker-entrypoint-initdb.d/
   api:
-    image: p2_11:1.0
+    image: p2_11_api:1.0
     network_mode: "host"
     volumes:
       - .:/app/
