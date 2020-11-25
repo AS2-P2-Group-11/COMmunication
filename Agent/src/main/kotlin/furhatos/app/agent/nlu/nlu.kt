@@ -48,16 +48,16 @@ class Remove: Intent() {
 }
 
 data class CategoryData (
-     var name: String?,
-     var id: Int?,
-     var items: List<ItemData>?
+        var name: String,
+        var id: Int? = null,
+        var items: List<ItemData>? = null
 )
 
 data class ItemData(
-      var name: String?,
-      var id: Int?,
-      var category_id: Int?,
-      var price: Int?
+        var title: String,
+        var id: Int? = null,
+        var category_id: Int? = null,
+        var price: Int? = null
 )
 
 
@@ -91,17 +91,24 @@ class CategoryList: ArrayList<CategoryData>()
  */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
     fun getNames(aList: List<ItemData>): List<String> {
-        return aList.map { it.name }.toList()
+        return aList.map { it.title }.toList()
     }
 
     fun getItems(aList: List<CategoryData>): List<ItemData>{
-        return aList.map { it.items }.toList().flatten()
+        val returnList = ArrayList<List<ItemData>>()
+        for(data in aList){
+            if (data.items != null){
+                returnList.add(data.items!!)
+            }
+        }
+        return returnList.flatten()
     }
 
     override fun getEnum(lang: Language): List<String> {
         val targetURL = "http://127.0.0.1:9000/categories"
         val response = khttp.get(targetURL).text
         val categories = Gson().fromJson(response, CategoryList::class.java)
+        println(getNames(getItems(categories)))
         return getNames(getItems(categories))
         // return listOf("Lenovo", "Apple", "Asus")
     }
@@ -138,7 +145,7 @@ class ChooseCategory(var category: Category? = null): Intent() {
 /**
  * Intent. The user wishes to add a specific item to their shopping cart.
  */
-class AddItem(var item: Item): Intent(){
+class AddItem(var item: Item? = null): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("@item",
                 "I'll add an @item",
@@ -251,9 +258,9 @@ class CheckShoppingCart: Intent(){
  */
 class PlaceOrder: Intent() {
     override fun getExamples(lang: Language): List<String> {
-    return listOf("I'd like to place an order",
-            "Place an order",
-            "Place")
+        return listOf("I'd like to place an order",
+                "Place an order",
+                "Place")
     }
 }
 
