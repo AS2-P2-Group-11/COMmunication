@@ -1,5 +1,6 @@
-package furhatos.app.comvocab.nlu
+package furhatos.app.agent.nlu
 
+import com.google.gson.Gson
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.Intent
@@ -46,25 +47,63 @@ class Remove: Intent() {
     }
 }
 
+data class CategoryData (
+     var name: String?,
+     var id: Int?,
+     var items: List<ItemData>?
+)
+
+data class ItemData(
+      var name: String?,
+      var id: Int?,
+      var category_id: Int?,
+      var price: Int?
+)
+
+
+
+
+
 /**
  * EnumEntity. All available categories.
  * Currently hardcoded, should be fetched from API.
  */
-class Category: EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        //return FastAPI.get(categories)
-        return listOf("Computer", "Tablet", "Mobile")
+class Category: EnumEntity() {
+    fun getNames(aList: List<CategoryData>): List<String>{
+        return aList.map { it.name }.toList()
     }
+
+    override fun getEnum(lang: Language): List<String> {
+        val targetURL = "http://127.0.0.1:9000/categories"
+        val response = khttp.get(targetURL).text
+        val categories = Gson().fromJson(response, CategoryList::class.java)
+        return getNames( categories )
+        // return listOf("tablet", "laptop", "mobile")
+    }
+
 }
+
+class CategoryList: ArrayList<CategoryData>()
 
 /**
  * EnumEntity. All available items.
  * Currently hardcoded, should be fetched from API.
  */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
+    fun getNames(aList: List<ItemData>): List<String> {
+        return aList.map { it.name }.toList()
+    }
+
+    fun getItems(aList: List<CategoryData>): List<ItemData>{
+        return aList.map { it.items }.toList().flatten()
+    }
+
     override fun getEnum(lang: Language): List<String> {
-        //return FastAPI.get(items)
-        return listOf("Lenovo", "Asus", "Apple")
+        val targetURL = "http://127.0.0.1:9000/categories"
+        val response = khttp.get(targetURL).text
+        val categories = Gson().fromJson(response, CategoryList::class.java)
+        return getNames(getItems(categories))
+        // return listOf("Lenovo", "Apple", "Asus")
     }
 }
 
@@ -99,7 +138,7 @@ class ChooseCategory(var category: Category? = null): Intent() {
 /**
  * Intent. The user wishes to add a specific item to their shopping cart.
  */
-class AddItem(var item: QuantifiedItem): Intent(){
+class AddItem(var item: Item): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("@item",
                 "I'll add an @item",
@@ -111,7 +150,7 @@ class AddItem(var item: QuantifiedItem): Intent(){
 /**
  * Intent. The user wishes to remove a specific item from their shopping cart.
  */
-class RemoveItem(var item: QuantifiedItem): Intent(){
+class RemoveItem(var item: Item): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("I don't need @item",
                 "I'll remove an @item",
@@ -121,10 +160,19 @@ class RemoveItem(var item: QuantifiedItem): Intent(){
     }
 }
 
+class ChangeItem(var item: Item): Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("I want to change the @item",
+                "Let's change an @item",
+                "I want to take a look at @item")
+    }
+}
 /**
  * ListEntity. A lists of numerals constitutes a tracking number.
  */
 class TrackingNumber: ListEntity<Numeral>()
+
+class ItemsInCart: ListEntity<Item>()
 
 /**
  * EnumEntity. Could probably be done easier, but this is a way to make numerals concrete.
@@ -165,11 +213,12 @@ class Checkout: Intent(){
 /**
  * Intent. The user is aborting the current operation. The system should return to root state.
  */
-class Abort: Intent(){
+class Aborting: Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("Never mind",
                 "Abort",
-                "Let's pretend this didn't happen")
+                "Let's pretend this didn't happen",
+                "Abort my current order")
     }
 }
 

@@ -1,8 +1,8 @@
-package furhatos.app.communication.flow
+package furhatos.app.agent.flow
 
 import furhatos.nlu.common.*
 import furhatos.flow.kotlin.*
-import furhatos.app.communication.nlu.*
+import furhatos.app.agent.nlu.*
 
 //Greeting
 val Start = state(Interaction) {
@@ -24,13 +24,13 @@ val ChooseAction = state(Interaction) {
     //What happens on response nothing?
 
     //If the user wants to place an order
-    onResponse<NewOrder> {
+    onResponse<PlaceOrder> {
         //--->Create an empty shopping cart here<---
         goto(ChooseShoppingCartAction)
     }
 
-    onResponse<ListOptions> {
-        furhat.say {"You can place an order, change an order, or track an order"}
+    onResponse<RequestOptions> {
+        furhat.say ("You can place an order, change an order, or track an order")
         reentry()
     }
 
@@ -60,8 +60,8 @@ val ChooseShoppingCartAction = state(Interaction){
     onResponse<Checkout> {
         //Get ShoppingCart.items from API
         if(ShoppingCart.items.isEmpty()){
-            furhat.say{"The shopping cart is empty and can not be checked out!"}
-            furhat.say {"Your choices are to add items, or aborting the order"}
+            furhat.say("The shopping cart is empty and can not be checked out!")
+            furhat.say ("Your choices are to add items, or aborting the order")
             reentry()
         }
         else{
@@ -74,36 +74,37 @@ val ChooseShoppingCartAction = state(Interaction){
             goto(Idle)
         }
     }
-    onResponse<AddItems> {
+    onResponse<AddItem> {
         goto(ListShoppingItems)
     }
     onResponse<ChangeItem> {
         if (ShoppingCart.items.isEmpty()){
-            furhat.say { "Your shopping cart is empty, you can't change an item in it." }
+            furhat.say ( "Your shopping cart is empty, you can't change an item in it." )
             reentry()
         }
         else {
             goto(ChooseItemToChange)
         }
     }
-    onResponse<AbortOrdering> {
+    
+    onResponse<Aborting> {
         furhat.say("Order aborted")
         goto(ChooseAction)
     }
-    onResponse<ListOptions> {
-        furhat.say {"Your choices are to checkout your order, add items, change items, or aborting the order"}
+    
+    onResponse<RequestOptions> {
+        furhat.say ("Your choices are to checkout your order, add items, change items, or aborting the order")
         reentry()
     }
     onResponse {
-        furhat.say {"That is not an option, if you want you can ask me to list your options"
-        }
+        furhat.say ("That is not an option, if you want you can ask me to list your options")
         reentry()
     }
 }
 
 val ListShoppingItems = state(Interaction){
     onEntry {
-        furhat.ask {"Do you want me to list the available items in the store?"}
+        furhat.ask ("Do you want me to list the available items in the store?")
     }
 
     onResponse<Yes> {
@@ -130,31 +131,31 @@ val AddShoppingItems = state(ChooseShoppingCartAction){
         furhat.ask("What items do you want to add to the list?")
     }
 
-    onResponse<StoreItem> {
+    onResponse<AddItem> {
         //Update ShoppingCart in the API
-        val chosenItem = it.intent.itemsInStore
+        val chosenItem = it.intent.item
         goto(SpecifyQuantity(chosenItem))
     }
-    onResponse<ListOptions> {
-        furhat.say {"If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order"}
+    onResponse<RequestOptions> {
+        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
         reentry()
     }
 }
 
-fun SpecifyQuantity(chosenItem: itemsInCart) : State=state(Interaction){
+fun SpecifyQuantity(chosenItem: Item) : State=state(Interaction){
     onEntry {
         furhat.ask("How many"+chosenItem+" do you want to add to in your shopping cart?")
     }
-    onResponse<IntegerNumber> {
+    onResponse<InputTrackingNumber> {
         //Get the number from nlu
-        val quantity=it.intent.integerNumber
+        val quantity=it.intent.trackingNumber
         //Change quantity in API
         ShoppingCart.items.add.quantity=quantity
         goto(ChooseShoppingCartAction)
     }
 
     onResponse {
-        furhat.say { "I did not catch that"}
+        furhat.say ( "I did not catch that")
         reentry()
     }
 }
@@ -163,23 +164,23 @@ val ChooseItemToChange = state(ChooseShoppingCartAction){
     onEntry {
         furhat.ask("What item do you want to change or remove?")
     }
-    onResponse<ItemInCart> {
-        val itemToChange = it.intent.itemsInCart
+    onResponse<AddItem> {
+        val itemToChange = it.intent.item
         goto(SpecifyNewQuantity(itemToChange))
     }
-    onResponse<ListOptions> {
-        furhat.say {"If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order"}
+    onResponse<RequestOptions> {
+        furhat.say ("If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order")
         reentry()
     }
 }
 
-fun SpecifyNewQuantity(itemToChange: itemsInCart) : State=state(Interaction){
+fun SpecifyNewQuantity(itemToChange: Item) : State=state(Interaction){
     onEntry {
         furhat.ask("How many"+itemToChange+"Do you want to keep in your shopping cart?")
     }
-    onResponse<IntegerNumber> {
+    onResponse<InputTrackingNumber> {
         //Get the number from nlu
-        val quantity=it.intent.integerNumber
+        val quantity=it.intent.trackingNumber
         //Change quantity in API
         ShoppingCart.items(itemToChange).quantity=quantity
         goto(ChooseShoppingCartAction)
