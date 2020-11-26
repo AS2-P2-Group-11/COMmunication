@@ -33,12 +33,12 @@ val ChooseAction = state(Interaction) {
     }
 
     onResponse<RequestOptions> {
-        furhat.say {"You can place an order, change an order, or track an order"}
+        furhat.say("You can place an order, change an order, or track an order")
         reentry()
     }
 
     onResponse<GoodBye>{
-        furhat.say{"So long"}
+        furhat.say("So long")
         goto(Idle)
     }
 
@@ -90,7 +90,7 @@ val ChooseShoppingCartAction = state(Interaction){
     //Maybe change instead of remove in nlu?
     onResponse<Remove> {
         //if (ShoppingCart.items.isEmpty()){
-            furhat.say { "Your shopping cart is empty, you can't change an item in it." }
+            furhat.say ( "Your shopping cart is empty, you can't change an item in it." )
             reentry()
         //}
         //else {
@@ -102,19 +102,18 @@ val ChooseShoppingCartAction = state(Interaction){
         //goto(ChooseAction)
     }
     onResponse<RequestOptions> {
-        furhat.say {"Your choices are to checkout your order, add items, change items, or aborting the order"}
+        furhat.say ("Your choices are to checkout your order, add items, change items, or aborting the order")
         reentry()
     }
     onResponse {
-        furhat.say {"That is not an option, if you want you can ask me to list your options"
-        }
+        furhat.say ("That is not an option, if you want you can ask me to list your options")
         reentry()
     }
 }
 
 val ListShoppingCategories = state(Interaction){
     onEntry {
-        furhat.ask {"Do you want me to list the available categories of items in the store?"}
+        furhat.ask ("Do you want me to list the available categories of items in the store?")
     }
 
     //Prints out the list "Category" gotten from the nlu
@@ -138,7 +137,7 @@ val ListShoppingCategories = state(Interaction){
 
 val ListShoppingItems = state(Interaction){
     onEntry {
-        furhat.ask {"Do you want me to list the available items in the store?"}
+        furhat.ask ("Do you want me to list the available items in the store?")
     }
 
     //Prints out the list "Items" gotten from the nlu
@@ -177,7 +176,7 @@ val AddShoppingCategory: State = state(ChooseShoppingCartAction){
     }
     onResponse<RequestOptions> {
         furhat.say {"The available categories are ${Category().optionsToText()}"}
-        furhat.say {"If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order"}
+        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
         reentry()
     }
 }
@@ -196,7 +195,7 @@ fun AddShoppingItems(category: Category) = state(ChooseShoppingCartAction){
     }
     onResponse<RequestOptions> {
         //furhat.say {"The available items in the category ${category.text} are"+store.items(category)}"}
-        furhat.say {"If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order"}
+        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
         reentry()
     }
     //onResponse<ChooseCategory>{
@@ -222,11 +221,11 @@ val ChooseItemToRemove = state(ChooseShoppingCartAction){
         goto(ChooseShoppingCartAction)
     }
     onResponse<RequestOptions> {
-        furhat.say {"If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order"}
+        furhat.say ("If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order")
         reentry()
     }
     onResponse{
-        furhat.say{"I'm sorry, I did not catch that"}
+        furhat.say("I'm sorry, I did not catch that")
         reentry()
     }
 }
