@@ -147,3 +147,7 @@ gradle-app.setting
 !gradle-wrapper.jar
 Agent/.gradletasknamecache
 Agent/**/build/
+
+## Python ignores
+*.pyc
+*.pyo
