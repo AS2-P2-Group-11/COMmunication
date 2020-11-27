@@ -145,7 +145,7 @@ class ChooseCategory(var category: Category? = null): Intent() {
 /**
  * Intent. The user wishes to add a specific item to their shopping cart.
  */
-class AddItem(var item: Item? = null): Intent(){
+class AddItem(var item: QuantifiedItemItem? = null): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("@item",
                 "I'll add an @item",
