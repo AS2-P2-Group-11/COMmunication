@@ -19,8 +19,9 @@ data class OrderData (
 val Start = state(Interaction) {
     onEntry {
         random(
-                {   furhat.say("Whazzup dawg?!") },
-                {   furhat.say("Greetings! What an absolute pleasure to meet you.") }
+                //{   furhat.say("Whazzup dawg?!") },
+                //{   furhat.say("Greetings! What an absolute pleasure to meet you.") },
+                {   furhat.say("Welcome to Furhat electronics store") }
         )
 
         goto(ChooseAction)
@@ -65,14 +66,15 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
 
         //Get current items of your order from API
         val urlForGet = "http://127.0.0.1:9000/order/$currentId"
+        val response1 = khttp.get(urlForGet)
         val response = khttp.get(urlForGet).text
         val order = Gson().fromJson(response, OrderData::class.java)
         println(order)
-        if (order.items==null){
+        if (order.items.isNullOrEmpty()){
             furhat.say("Your shopping cart is currently empty")
         }
         else{
-            furhat.say ("Your shopping cart currently consist of"+order.items)
+            furhat.say ("Your shopping cart currently consist of" + order.items) // TODO:  order.items is not doing his job. maybe Muhammad can do something here
         }
         furhat.ask("What do you want to do with it?")
     }
@@ -121,8 +123,8 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
         reentry()
     }
     onResponse {
-        furhat.say ("That is not an option, if you want you can ask me to list your options")
-        reentry()
+        furhat.ask ("That is not an option, Your can checkout your order, add items, remove items, or aborting the order")
+        //reentry()
     }
 }
 
@@ -216,16 +218,18 @@ fun AddShoppingCategory(currentId: Any): State = state(ChooseShoppingCartAction(
 //Reads in the item(s) the user want to add to the list (currently from all items but should only be from the chosen category)
 fun AddShoppingItems(category: Category, currentId: Any) = state(AddShoppingCategory(currentId)){
     onEntry {
-        furhat.ask("What items in the category"+category+"do you want to add to your order?")
+        furhat.ask("What items in the category "+category+" do you want to add to your order?")
     }
 
     onResponse<AddItem> {
+        println(it.intent.item)
+        println(currentId)
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_title"
-        val values = mapOf("title" to it.intent.item)
+        val values = mapOf("item_title" to it.intent.item.toString(), "quantity" to 1) //TODO: it.intent.quantify
         val postResponse = khttp.post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
-        furhat.say("...was added to your shopping order")
+        furhat.say("${1} ${it.intent.item.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
     onResponse<RequestOptions> {
