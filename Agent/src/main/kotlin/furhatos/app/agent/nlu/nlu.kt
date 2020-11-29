@@ -18,7 +18,9 @@ class RequestOptions: Intent() {
         return listOf("What options do you have?",
                 "What can I do?",
                 "What are the alternatives?",
-                "What are my options?")
+                "What are my options?",
+                "List my options, please",
+                "List the options")
     }
 }
 
