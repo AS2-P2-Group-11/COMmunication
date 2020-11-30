@@ -218,18 +218,16 @@ fun AddShoppingCategory(currentId: Any): State = state(ChooseShoppingCartAction(
 //Reads in the item(s) the user want to add to the list (currently from all items but should only be from the chosen category)
 fun AddShoppingItems(category: Category, currentId: Any) = state(AddShoppingCategory(currentId)){
     onEntry {
-        furhat.ask("What items in the category "+category+" do you want to add to your order?")
+        furhat.ask("What items in the category $category do you want to add to your order?")
     }
 
     onResponse<AddItem> {
-        println(it.intent.item)
-        println(currentId)
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_title"
-        val values = mapOf("item_title" to it.intent.item.toString(), "quantity" to 1) //TODO: it.intent.quantify
+        val values = mapOf("item_title" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count.toString().toInt())
         val postResponse = khttp.post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
-        furhat.say("${1} ${it.intent.item.toString()} is added to your shopping order")
+        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
     onResponse<RequestOptions> {
