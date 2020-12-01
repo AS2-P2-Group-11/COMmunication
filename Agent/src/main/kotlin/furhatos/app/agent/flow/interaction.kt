@@ -12,7 +12,13 @@ data class OrderData (
         var status: String? = null,
         var id: Int? = null,
         var date: String? = null,
-        var items: List<ItemData>? = null
+        var items: List<ItemOrderData>? = null
+)
+data class ItemOrderData (
+        var quantity: Int? = null,
+        var id: Int? = null,
+        var order_id: Int? = null,
+        var item: ItemData? = null
 )
 
 //Greeting
@@ -41,7 +47,7 @@ val ChooseAction: State = state(Interaction) {
         val values = mapOf("status" to "submitted")
         val postResponse = khttp.post(urlForPost, json=values)
         val currentId = postResponse.jsonObject["id"]
-        goto(ChooseShoppingCartAction(currentId))
+        goto(ListShoppingCategories(currentId))
     }
 
     onResponse<RequestOptions> {
@@ -69,12 +75,13 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
         val response1 = khttp.get(urlForGet)
         val response = khttp.get(urlForGet).text
         val order = Gson().fromJson(response, OrderData::class.java)
-        println(order)
         if (order.items.isNullOrEmpty()){
             furhat.say("Your shopping cart is currently empty")
         }
         else{
-            furhat.say ("Your shopping cart currently consist of" + order.items) // TODO:  order.items is not doing his job. maybe Muhammad can do something here
+            for( item in order.items!!) {
+                furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.title)
+            }
         }
         furhat.ask("What do you want to do with it?")
     }
@@ -157,11 +164,31 @@ fun ListShoppingCategories(currentId: Any) = state(Interaction){
 
 fun ListShoppingItems(currentId: Any) = state(Interaction){
     onEntry {
-        furhat.ask ("Do you want me to list the available items in the store?")
+        furhat.ask ("Do you want me to list the available items in some category?")
     }
 
     //Prints out the list "Items" gotten from the nlu
     onResponse<Yes> {
+        goto(ListShoppingItemsByCategory(currentId))
+    }
+
+    onResponse<No> {
+        goto(AddShoppingCategory(currentId))
+    }
+
+    onResponse {
+        furhat.say ( "Sorry, I did not catch that" )
+        reentry()
+    }
+}
+
+fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
+    onEntry {
+        furhat.ask ("What category are you interested in?")
+    }
+
+    //Prints out the list "Items" gotten from the nlu
+    onResponse<ChooseCategory> {
         val getCategoriesUrl = "http://127.0.0.1:9000/categories"
         val response = khttp.get(getCategoriesUrl).text
         val categories = Gson().fromJson(response, CategoryList::class.java)
@@ -169,7 +196,7 @@ fun ListShoppingItems(currentId: Any) = state(Interaction){
         for (category in categories){
             furhat.say("In the category of "+category.name)
             for(item in category.items!!) {
-                furhat.say(item.title + "For the price of" + item.price)
+                furhat.say(item.title + " For the price of " + item.price)
             }
         }
         goto(AddShoppingCategory(currentId))
