@@ -1,15 +1,33 @@
-package furhatos.app.communication.flow
+package furhatos.app.agent.flow
 
+import com.google.gson.Gson
+import furhatos.app.agent.nlu.*
+import furhatos.flow.kotlin.State
+import furhatos.flow.kotlin.furhat
+import furhatos.flow.kotlin.onResponse
+import furhatos.flow.kotlin.state
 import furhatos.nlu.common.*
-import furhatos.flow.kotlin.*
-import furhatos.app.communication.nlu.*
+
+data class OrderData (
+        var status: String? = null,
+        var id: Int? = null,
+        var date: String? = null,
+        var items: List<ItemOrderData>? = null
+)
+data class ItemOrderData (
+        var quantity: Int? = null,
+        var id: Int? = null,
+        var order_id: Int? = null,
+        var item: ItemData? = null
+)
 
 //Greeting
 val Start = state(Interaction) {
     onEntry {
         random(
-                {   furhat.say("Whazzup dawg?!") },
-                {   furhat.say("Greetings! What an absolute pleasure to meet you.") }
+                //{   furhat.say("Whazzup dawg?!") },
+                //{   furhat.say("Greetings! What an absolute pleasure to meet you.") },
+                {   furhat.say("Welcome to Furhat electronics store") }
         )
 
         goto(ChooseAction)
@@ -17,21 +35,29 @@ val Start = state(Interaction) {
 }
 
 //The "main menu" when the user chooses what he want to do, e.g. place an order.
-val ChooseAction = state(Interaction) {
+val ChooseAction: State = state(Interaction) {
     onEntry {
         furhat.ask("What can I help you with?")
     }
     //What happens on response nothing?
 
     //If the user wants to place an order
-    onResponse<NewOrder> {
-        //--->Create an empty shopping cart here<---
-        goto(ChooseShoppingCartAction)
+    onResponse<PlaceOrder> {
+        val urlForPost = "http://127.0.0.1:9000/order"
+        val values = mapOf("status" to "submitted")
+        val postResponse = khttp.post(urlForPost, json=values)
+        val currentId = postResponse.jsonObject["id"]
+        goto(ListShoppingCategories(currentId))
     }
 
-    onResponse<ListOptions> {
-        furhat.say {"You can place an order, change an order, or track an order"}
+    onResponse<RequestOptions> {
+        furhat.say("You can place an order, change an order, or track an order")
         reentry()
+    }
+
+    onResponse<GoodBye>{
+        furhat.say("Goodbye!")
+        goto(Idle)
     }
 
     onResponse {
@@ -41,82 +67,93 @@ val ChooseAction = state(Interaction) {
     }
 }
 
-
-val ChooseShoppingCartAction = state(Interaction){
+fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
     onEntry {
-        //Get ShoppingCart.items from API
-        if (ShoppingCart.items.isEmpty()){
+
+        //Get current items of your order from API
+        val urlForGet = "http://127.0.0.1:9000/order/$currentId"
+        val response1 = khttp.get(urlForGet)
+        val response = khttp.get(urlForGet).text
+        val order = Gson().fromJson(response, OrderData::class.java)
+        if (order.items.isNullOrEmpty()){
             furhat.say("Your shopping cart is currently empty")
         }
         else{
-            furhat.say {
-                +"Your shopping cart currently consist of"
-                //Get ShoppingCart.items from API
-                +println(ShoppingCart.items) }
+            for( item in order.items!!) {
+                furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.name)
+            }
         }
         furhat.ask("What do you want to do with it?")
     }
 
+    //The user wants to checkout (place) his order
     onResponse<Checkout> {
-        //Get ShoppingCart.items from API
-        if(ShoppingCart.items.isEmpty()){
-            furhat.say{"The shopping cart is empty and can not be checked out!"}
-            furhat.say {"Your choices are to add items, or aborting the order"}
-            reentry()
+        //Get current items of your order from API
+        val urlForGet = "http://127.0.0.1:9000/order/$currentId"
+        val response = khttp.get(urlForGet).text
+        val order = Gson().fromJson(response, OrderData::class.java)
+        if (order.items==null){
+                furhat.say("The shopping cart is empty and can not be checked out!")
+                furhat.say ("Your choices are to add items, or aborting the order")
+                reentry()
         }
         else{
-            furhat.say {
-                +"Your order has been placed and your order number is "
-                //Get ShoppingCart.id from API
-                +ShoppingCart.id
-                +"Have a nice day!"
-            }
+            furhat.say ( "Your order has been placed and your order number is "+currentId+"Have a nice day!")
             goto(Idle)
         }
     }
-    onResponse<AddItems> {
-        goto(ListShoppingItems)
+    onResponse<Add> {
+        goto(ListShoppingCategories(currentId))
     }
-    onResponse<ChangeItem> {
-        if (ShoppingCart.items.isEmpty()){
-            furhat.say { "Your shopping cart is empty, you can't change an item in it." }
+
+    //Maybe change instead of remove in nlu?
+    onResponse<Remove> {
+        val urlForGet = "http://127.0.0.1:9000/order/$currentId"
+        val response = khttp.get(urlForGet).text
+        val order = Gson().fromJson(response, OrderData::class.java)
+        if (order.items==null){
+            furhat.say ( "Your shopping cart is empty, you can't remove an item from it." )
             reentry()
         }
         else {
-            goto(ChooseItemToChange)
+            goto(ChooseItemToRemove(currentId))
         }
     }
-    onResponse<AbortOrdering> {
+    onResponse<Aborting> {
+        val urlForDelete = "http://127.0.0.1:9000/order/$currentId"
+        val deleteResponse = khttp.delete(urlForDelete)
         furhat.say("Order aborted")
         goto(ChooseAction)
     }
-    onResponse<ListOptions> {
-        furhat.say {"Your choices are to checkout your order, add items, change items, or aborting the order"}
+    onResponse<RequestOptions> {
+        furhat.say ("Your choices are to checkout your order, add items, remove items, or aborting the order")
         reentry()
     }
     onResponse {
-        furhat.say {"That is not an option, if you want you can ask me to list your options"
-        }
-        reentry()
+        furhat.ask ("That is not an option, Your can checkout your order, add items, remove items, or aborting the order")
+        //reentry()
     }
 }
 
-val ListShoppingItems = state(Interaction){
+fun ListShoppingCategories(currentId: Any) = state(Interaction){
     onEntry {
-        furhat.ask {"Do you want me to list the available items in the store?"}
+        furhat.ask ("Do you want me to list the available categories of items in the store?")
     }
 
+    //Prints out the list "Category" gotten from the nlu
     onResponse<Yes> {
-        furhat.say {
-            +"The available items are"
-            //Get Shop.items from API
-            +Shop.Items
+        val getCategoriesUrl = "http://127.0.0.1:9000/categories"
+        val response = khttp.get(getCategoriesUrl).text
+        val categories = Gson().fromJson(response, CategoryList::class.java)
+        furhat.say ( "The available categories are" )
+        for (category in categories){
+            furhat.say(category.name)
         }
-        goto(AddShoppingItems)
+        goto(ListShoppingItems(currentId))
     }
 
     onResponse<No> {
-        goto(AddShoppingItems)
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
@@ -125,68 +162,151 @@ val ListShoppingItems = state(Interaction){
     }
 }
 
-val AddShoppingItems = state(ChooseShoppingCartAction){
+fun ListShoppingItems(currentId: Any) = state(Interaction){
     onEntry {
-        furhat.ask("What items do you want to add to the list?")
+        furhat.ask ("Do you want me to list the available items in some category?")
     }
 
-    onResponse<StoreItem> {
-        //Update ShoppingCart in the API
-        val chosenItem = it.intent.itemsInStore
-        goto(SpecifyQuantity(chosenItem))
+    //Prints out the list "Items" gotten from the nlu
+    onResponse<Yes> {
+        goto(ListShoppingItemsByCategory(currentId))
     }
-    onResponse<ListOptions> {
-        furhat.say {"If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order"}
-        reentry()
-    }
-}
 
-fun SpecifyQuantity(chosenItem: itemsInCart) : State=state(Interaction){
-    onEntry {
-        furhat.ask("How many"+chosenItem+" do you want to add to in your shopping cart?")
-    }
-    onResponse<IntegerNumber> {
-        //Get the number from nlu
-        val quantity=it.intent.integerNumber
-        //Change quantity in API
-        ShoppingCart.items.add.quantity=quantity
-        goto(ChooseShoppingCartAction)
+    onResponse<No> {
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
-        furhat.say { "I did not catch that"}
+        furhat.say ( "Sorry, I did not catch that" )
         reentry()
     }
 }
 
-val ChooseItemToChange = state(ChooseShoppingCartAction){
+fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
     onEntry {
-        furhat.ask("What item do you want to change or remove?")
+        furhat.ask ("What category are you interested in?")
     }
-    onResponse<ItemInCart> {
-        val itemToChange = it.intent.itemsInCart
-        goto(SpecifyNewQuantity(itemToChange))
-    }
-    onResponse<ListOptions> {
-        furhat.say {"If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order"}
-        reentry()
-    }
-}
 
-fun SpecifyNewQuantity(itemToChange: itemsInCart) : State=state(Interaction){
-    onEntry {
-        furhat.ask("How many"+itemToChange+"Do you want to keep in your shopping cart?")
+    //Prints out the list of items from the chosen category
+    onResponse<ChooseCategory> {
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+ it.intent.category!!.value.toString()
+        val response = khttp.get(getItemsUrl).text
+        val category = Gson().fromJson(response, CategoryData::class.java)
+        furhat.say("The available items are")
+        for(item in category.items!!) {
+            furhat.say(item.name + " For the price of " + item.price)
+        }
+        //val getCategoriesUrl = "http://127.0.0.1:9000/categories"
+        //val response = khttp.get(getCategoriesUrl).text
+        //val categories = Gson().fromJson(response, CategoryList::class.java)
+        //furhat.say("The available items are")
+        //for (category in categories){
+        //    furhat.say("In the category of "+category.name)
+        //    for(item in category.items!!) {
+        //        furhat.say(item.title + " For the price of " + item.price)
+        //    }
+        //}
+        if (it.intent.category != null){
+            goto(AddShoppingItems(currentId))
+        }
+        else{
+            furhat.say("That category does not exist")
+            reentry()
+        }
     }
-    onResponse<IntegerNumber> {
-        //Get the number from nlu
-        val quantity=it.intent.integerNumber
-        //Change quantity in API
-        ShoppingCart.items(itemToChange).quantity=quantity
-        goto(ChooseShoppingCartAction)
+
+    onResponse<No> {
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
-        furhat.say { "I did not catch that, you currently have "+ShoppingCart.items(itemToChange).quantity+" in your shopping cart" }
+        furhat.say ( "Sorry, I did not catch that" )
+        reentry()
+    }
+}
+
+//Reads in the category the user wants to add an item from
+//fun AddShoppingCategory(currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
+//    onEntry {
+//        furhat.ask("From what category do you want to add items?")
+//    }
+
+//    onResponse<ChooseCategory> {
+//        val chosenCategory = it.intent.category
+//        if (chosenCategory != null){
+//            goto(AddShoppingItems(chosenCategory, currentId))
+//        }
+//        else{
+//            furhat.say("That category does not exist")
+//            reentry()
+//        }
+//    }
+//    onResponse<RequestOptions> {
+//        val getCategoriesUrl = "http://127.0.0.1:9000/categories"
+//        val response = khttp.get(getCategoriesUrl).text
+//        val categories = Gson().fromJson(response, CategoryList::class.java)
+//        furhat.say ("The available categories are")
+//        for (category in categories){
+//            furhat.say(category.name)
+//        }
+//        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
+//        reentry()
+//    }
+//}
+
+
+//Reads in the item(s) the user want to add to the list (currently from all items but should only be from the chosen category)
+fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("What items do you want to add to your order?")
+    }
+
+    onResponse<AddItem> {
+        val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_title"
+        val values = mapOf("item_title" to it.intent.item?.item!!.value.toString(), "quantity" to it.intent.item?.count.toString().toInt())
+        val postResponse = khttp.post(postOrderUrl, json=values)
+        val chosenItem = it.intent.item
+        //The chosen item should be added here
+        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item!!.value.toString()} is added to your shopping order")
+        goto(ChooseShoppingCartAction(currentId))
+    }
+    onResponse<RequestOptions> {
+        goto(ReDoCategoryList(currentId))
+    }
+}
+
+fun ReDoCategoryList(currentId: Any) = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("Do you want me to list the available categories and items in the store?")
+    }
+
+    onResponse<Yes> {
+        goto(ListShoppingCategories(currentId))
+    }
+
+    onResponse<No> {
+        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
+        goto(AddShoppingItems(currentId))
+    }
+}
+
+fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("What item do you want remove?")
+    }
+    onResponse<RemoveItem> {
+        val itemToRemove = it.intent.item
+        //Remove item from order here
+        //        ...
+        //
+        goto(ChooseShoppingCartAction(currentId))
+    }
+    onResponse<RequestOptions> {
+        furhat.say ("If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order")
+        reentry()
+    }
+    onResponse{
+        furhat.say("I'm sorry, I did not catch that")
         reentry()
     }
 }
