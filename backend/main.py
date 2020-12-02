@@ -102,7 +102,7 @@ def remove_item_by_id(item_id: int, db: Session = Depends(get_db)):
     return item
 
 
-@app.get("/item_by_title/{item_title}", response_model=schemas.Item)
+@app.get("/item_by_name/{item_name}", response_model=schemas.Item)
 def read_item_by_title(item_title: str, db: Session = Depends(get_db)):
     item = crud.get_item_by_title(db, item_title=item_title)
     if item is None:
@@ -110,7 +110,7 @@ def read_item_by_title(item_title: str, db: Session = Depends(get_db)):
     return item
 
 
-@app.delete("/item_by_title/{item_title}", response_model=schemas.Item, status_code=200)
+@app.delete("/item_by_name/{item_name}", response_model=schemas.Item, status_code=200)
 def remove_item_by_title(item_title: str, db: Session = Depends(get_db)):
     item = crud.delete_item_by_title(db, item_title=item_title)
     if item is None:
@@ -157,7 +157,7 @@ def add_item_by_id_to_order(order_id, item: schemas.OrderItemBaseAdd, db: Sessio
         raise HTTPException(status_code=400, detail="No item is added to order")
 
 
-@app.post("/order/{order_id}/item_by_title")
+@app.post("/order/{order_id}/item_by_name")
 def add_item_by_title_to_order(order_id, item: schemas.OrderItemBaseNameAdd, db: Session = Depends(get_db)):
     if item.quantity > 0:
         crud.add_item_by_title_to_order(db, item=item, order_id=order_id)
@@ -175,7 +175,7 @@ def update_item_by_id_to_order(order_id, item: schemas.OrderItemBaseAdd, db: Ses
         raise HTTPException(status_code=400, detail="No item is added to order")
 
 
-@app.patch("/order/{order_id}/item_by_title")
+@app.patch("/order/{order_id}/item_by_name")
 def update_item_by_title_to_order(order_id, item: schemas.OrderItemBaseNameAdd, db: Session = Depends(get_db)):
     if item.quantity >= 0:
         crud.update_item_by_title_to_order(db, items=item, order_id=order_id)

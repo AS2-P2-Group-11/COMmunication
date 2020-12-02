@@ -61,7 +61,7 @@ def get_category_items_by_name(db: Session, category_name: str, skip: int = 0, l
 
 
 def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_id):
-    db_item = models.Item(title=item.title, category_id=category_id,  price=item.price)
+    db_item = models.Item(title=item.name, category_id=category_id,  price=item.price)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -70,7 +70,7 @@ def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_
 
 def create_category_items_by_name(db: Session, item: schemas.ItemCreate, category_name):
     category = get_category_by_name(db, category_name=category_name)
-    db_item = models.Item(title=item.title, category_id=category.id,  price=item.price)
+    db_item = models.Item(title=item.name, category_id=category.id,  price=item.price)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -151,7 +151,7 @@ def add_item_by_id_to_order(db: Session, item: schemas.OrderItemBaseAdd,  order_
 
 
 def add_item_by_title_to_order(db: Session, order_id: int, item: schemas.OrderItemBaseNameAdd):
-    temp_item = get_item_by_title(db, item_title=item.item_title)
+    temp_item = get_item_by_title(db, item_title=item.name)
     db_item = models.OrderItem(quantity=item.quantity, order_id=order_id, item_id=temp_item.id)
     db.add(db_item)
     db.commit()
@@ -179,7 +179,7 @@ def update_item_by_title_to_order(db: Session, order_id: int, items: schemas.Ord
     order = get_order_by_id(db, order_id=order_id)
     for item in order.items:
         if items.quantity > 0:
-            if item.item.title == items.item_title:
+            if item.item.name == items.name:
                 item.quantity = items.quantity
         else:
             db.delete(item)

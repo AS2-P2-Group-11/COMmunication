@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 
 class ItemBase(BaseModel):
-    title: str
+    name: str
     price: int
 
 
@@ -63,7 +63,7 @@ class OrderItemBaseAdd(BaseModel):
 
 
 class OrderItemBaseNameAdd(BaseModel):
-    item_title: str
+    name: str
     quantity: int
 
 
