@@ -153,7 +153,7 @@ fun ListShoppingCategories(currentId: Any) = state(Interaction){
     }
 
     onResponse<No> {
-        goto(AddShoppingCategory(currentId))
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
@@ -173,7 +173,7 @@ fun ListShoppingItems(currentId: Any) = state(Interaction){
     }
 
     onResponse<No> {
-        goto(AddShoppingCategory(currentId))
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
@@ -187,23 +187,36 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
         furhat.ask ("What category are you interested in?")
     }
 
-    //Prints out the list "Items" gotten from the nlu
+    //Prints out the list of items from the chosen category
     onResponse<ChooseCategory> {
-        val getCategoriesUrl = "http://127.0.0.1:9000/categories"
-        val response = khttp.get(getCategoriesUrl).text
-        val categories = Gson().fromJson(response, CategoryList::class.java)
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category.toString()
+        val response = khttp.get(getItemsUrl).text
+        val category = Gson().fromJson(response, CategoryData::class.java)
         furhat.say("The available items are")
-        for (category in categories){
-            furhat.say("In the category of "+category.name)
-            for(item in category.items!!) {
-                furhat.say(item.title + " For the price of " + item.price)
-            }
+        for(item in category.items!!) {
+            furhat.say(item.title + " For the price of " + item.price)
         }
-        goto(AddShoppingCategory(currentId))
+        //val getCategoriesUrl = "http://127.0.0.1:9000/categories"
+        //val response = khttp.get(getCategoriesUrl).text
+        //val categories = Gson().fromJson(response, CategoryList::class.java)
+        //furhat.say("The available items are")
+        //for (category in categories){
+        //    furhat.say("In the category of "+category.name)
+        //    for(item in category.items!!) {
+        //        furhat.say(item.title + " For the price of " + item.price)
+        //    }
+        //}
+        if (it.intent.category != null){
+            goto(AddShoppingItems(currentId))
+        }
+        else{
+            furhat.say("That category does not exist")
+            reentry()
+        }
     }
 
     onResponse<No> {
-        goto(AddShoppingCategory(currentId))
+        goto(AddShoppingItems(currentId))
     }
 
     onResponse {
@@ -213,39 +226,39 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
 }
 
 //Reads in the category the user wants to add an item from
-fun AddShoppingCategory(currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
-    onEntry {
-        furhat.ask("From what category do you want to add items?")
-    }
+//fun AddShoppingCategory(currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
+//    onEntry {
+//        furhat.ask("From what category do you want to add items?")
+//    }
 
-    onResponse<ChooseCategory> {
-        val chosenCategory = it.intent.category
-        if (chosenCategory != null){
-            goto(AddShoppingItems(chosenCategory, currentId))
-        }
-        else{
-            furhat.say("That category does not exist")
-            reentry()
-        }
-    }
-    onResponse<RequestOptions> {
-        val getCategoriesUrl = "http://127.0.0.1:9000/categories"
-        val response = khttp.get(getCategoriesUrl).text
-        val categories = Gson().fromJson(response, CategoryList::class.java)
-        furhat.say ("The available categories are")
-        for (category in categories){
-            furhat.say(category.name)
-        }
-        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
-        reentry()
-    }
-}
+//    onResponse<ChooseCategory> {
+//        val chosenCategory = it.intent.category
+//        if (chosenCategory != null){
+//            goto(AddShoppingItems(chosenCategory, currentId))
+//        }
+//        else{
+//            furhat.say("That category does not exist")
+//            reentry()
+//        }
+//    }
+//    onResponse<RequestOptions> {
+//        val getCategoriesUrl = "http://127.0.0.1:9000/categories"
+//        val response = khttp.get(getCategoriesUrl).text
+//        val categories = Gson().fromJson(response, CategoryList::class.java)
+//        furhat.say ("The available categories are")
+//        for (category in categories){
+//            furhat.say(category.name)
+//        }
+//        furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
+//        reentry()
+//    }
+//}
 
 
 //Reads in the item(s) the user want to add to the list (currently from all items but should only be from the chosen category)
-fun AddShoppingItems(category: Category, currentId: Any) = state(AddShoppingCategory(currentId)){
+fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
     onEntry {
-        furhat.ask("What items in the category $category do you want to add to your order?")
+        furhat.ask("What items do you want to add to your order?")
     }
 
     onResponse<AddItem> {
@@ -258,10 +271,22 @@ fun AddShoppingItems(category: Category, currentId: Any) = state(AddShoppingCate
         goto(ChooseShoppingCartAction(currentId))
     }
     onResponse<RequestOptions> {
-        //The category should here be something like category.name and items, category.items.title
-        furhat.say ("The available items in the category"+category+"are ...")
+        goto(ReDoCategoryList(currentId))
+    }
+}
+
+fun ReDoCategoryList(currentId: Any) = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("Do you want me to list the available categories and items in the store?")
+    }
+
+    onResponse<Yes> {
+        goto(ListShoppingCategories(currentId))
+    }
+
+    onResponse<No> {
         furhat.say ("If you do not want to add more items, your choices are to checkout your order, change items, or aborting the order")
-        reentry()
+        goto(AddShoppingItems(currentId))
     }
 }
 

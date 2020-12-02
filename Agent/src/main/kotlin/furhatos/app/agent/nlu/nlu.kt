@@ -215,7 +215,12 @@ class Checkout: Intent(){
         return listOf("I'm done shopping",
                 "I'll go to checkout",
                 "Checkout, please.",
-                "I would like to check out my shopping cart")
+                "I would like to check out my shopping cart",
+                "I'll go to check out",
+                "Check out, please.",
+                "I would like to check out my shopping cart",
+                "Check out",
+                "Checkout")
     }
 }
 
