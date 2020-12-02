@@ -80,7 +80,7 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
         }
         else{
             for( item in order.items!!) {
-                furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.title)
+                furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.name)
             }
         }
         furhat.ask("What do you want to do with it?")
@@ -189,12 +189,12 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
 
     //Prints out the list of items from the chosen category
     onResponse<ChooseCategory> {
-        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category.toString()
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+ it.intent.category!!.value.toString()
         val response = khttp.get(getItemsUrl).text
         val category = Gson().fromJson(response, CategoryData::class.java)
         furhat.say("The available items are")
         for(item in category.items!!) {
-            furhat.say(item.title + " For the price of " + item.price)
+            furhat.say(item.name + " For the price of " + item.price)
         }
         //val getCategoriesUrl = "http://127.0.0.1:9000/categories"
         //val response = khttp.get(getCategoriesUrl).text
@@ -263,11 +263,11 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
 
     onResponse<AddItem> {
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_title"
-        val values = mapOf("item_title" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count.toString().toInt())
+        val values = mapOf("item_title" to it.intent.item?.item!!.value.toString(), "quantity" to it.intent.item?.count.toString().toInt())
         val postResponse = khttp.post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
-        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item!!.value.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
     onResponse<RequestOptions> {

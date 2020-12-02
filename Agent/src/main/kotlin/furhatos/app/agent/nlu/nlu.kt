@@ -56,7 +56,7 @@ data class CategoryData (
 )
 
 data class ItemData(
-        var title: String,
+        var name: String,
         var id: Int? = null,
         var category_id: Int? = null,
         var price: Int? = null
@@ -93,7 +93,7 @@ class CategoryList: ArrayList<CategoryData>()
  */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
     fun getNames(aList: List<ItemData>): List<String> {
-        return aList.map { it.title }.toList()
+        return aList.map { it.name }.toList()
     }
 
     fun getItems(aList: List<CategoryData>): List<ItemData>{
