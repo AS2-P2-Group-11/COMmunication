@@ -27,6 +27,26 @@ class RequestOptions: Intent() {
     }
 }
 
+class RequestItemsOptions: Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+                "Can you list the items again, please?",
+                "List the items again.",
+                "Which items were there?",
+                "What could I buy, again?")
+    }
+}
+
+class RequestCategoriesOptions: Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+                "Can you list the categories again, please?",
+                "List the categories again.",
+                "What were the categories?")
+    }
+}
+
+
 /**
  * Intent. The system has asked whether something should be added or removed. The user indicates "Add"
  */
