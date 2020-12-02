@@ -20,7 +20,10 @@ class RequestOptions: Intent() {
                 "What are the alternatives?",
                 "What are my options?",
                 "List my options, please",
-                "List the options")
+                "List the options",
+                "Can you list the categories again, please?",
+                "List the items again.",
+                "What could I do, again?")
     }
 }
 
