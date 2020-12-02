@@ -70,7 +70,7 @@ data class ItemData(
  * EnumEntity. All available categories.
  * Currently hardcoded, should be fetched from API.
  */
-class Category: EnumEntity() {
+class Category: EnumEntity(stemming = true, speechRecPhrases = true) {
     fun getNames(aList: List<CategoryData>): List<String>{
         return aList.map { it.name }.toList()
     }
@@ -140,7 +140,10 @@ class ChooseCategory(var category: Category? = null): Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("@category",
                 "Something from @category",
-                "What do you have in @category ?")
+                "What do you have in @category ?",
+                "I want a @category",
+                "I would like to buy a @category",
+                "What @category do you have?")
     }
 }
 
@@ -152,7 +155,10 @@ class AddItem(var item: QuantifiedItem? = null): Intent(){
         return listOf("@item",
                 "I'll add an @item",
                 "@item, please.",
-                "Add @item to the shopping cart")
+                "Add @item to the shopping cart",
+                "I want to buy @item",
+                "I would like to buy @item",
+                "I want an @item")
     }
 }
 
