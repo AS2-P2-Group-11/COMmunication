@@ -61,7 +61,7 @@ def get_category_items_by_name(db: Session, category_name: str, skip: int = 0, l
 
 
 def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_id):
-    db_item = models.Item(title=item.name, category_id=category_id,  price=item.price)
+    db_item = models.Item(name=item.name, category_id=category_id,  price=item.price)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -70,7 +70,7 @@ def create_category_items_by_id(db: Session, item: schemas.ItemCreate, category_
 
 def create_category_items_by_name(db: Session, item: schemas.ItemCreate, category_name):
     category = get_category_by_name(db, category_name=category_name)
-    db_item = models.Item(title=item.name, category_id=category.id,  price=item.price)
+    db_item = models.Item(name=item.name, category_id=category.id,  price=item.price)
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -82,7 +82,7 @@ def get_item_by_id(db: Session, item_id: int):
 
 
 def get_item_by_title(db: Session, item_title: str):
-    return db.query(models.Item).filter(models.Item.title == item_title).first()
+    return db.query(models.Item).filter(models.Item.name == item_title).first()
 
 
 def delete_item_by_id(db: Session, item_id: int):

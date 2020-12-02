@@ -7,35 +7,35 @@ headers = {
 products = {
     "laptop": [
         {
-            "title": "macbook",
+            "name": "macbook",
             "price": 1500
         },
         {
-            "title": "lenovo",
+            "name": "lenovo",
             "price": 1300
         },
         {
-            "title": "dell",
+            "name": "dell",
             "price": 1400
         }
     ],
     "mobile": [
         {
-            "title": "iphone",
+            "name": "iphone",
             "price": 800
         },
         {
-            "title": "samsung",
+            "name": "samsung",
             "price": 700
         },
     ],
     "tablet": [
         {
-            "title": "ipad",
+            "name": "ipad",
             "price": 1100
         },
         {
-            "title": "galaxy note",
+            "name": "galaxy note",
             "price": 1000
         },
     ]
