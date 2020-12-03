@@ -115,8 +115,8 @@ fun QuantityToKeep(item: String, currentId: Any) = state(Interaction){
 
     onResponse<Number> {
         val quantity=it.intent.toString().toInt()
-        val patchUrl = "http://127.0.0.1:9000/order/$currentId/item_by_title"
-        val values = mapOf("item_name" to item.toLowerCase(), "quantity" to quantity)
+        val patchUrl = "http://127.0.0.1:9000/order/$currentId/item_by_name"
+        val values = mapOf("name" to item.toLowerCase(), "quantity" to quantity)
         val response = khttp.patch(patchUrl, json=values )
 
         val urlForGet = "http://127.0.0.1:9000/order/$currentId"

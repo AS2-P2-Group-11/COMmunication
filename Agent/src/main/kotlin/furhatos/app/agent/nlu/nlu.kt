@@ -202,7 +202,8 @@ class RemoveItem(var item: Item? = null): Intent(){
 
 class ChangeItem(var item: Item? = null): Intent() {
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I want to change the @item",
+        return listOf("@item",
+                "I want to change the @item",
                 "Let's change an @item",
                 "I want to take a look at @item")
     }
