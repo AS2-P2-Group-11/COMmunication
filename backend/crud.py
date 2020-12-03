@@ -191,6 +191,20 @@ def update_item_by_title_to_order(db: Session, order_id: int, items: schemas.Ord
     return order
 
 
+def create_category_synonym_by_id(db: Session, synonym: schemas.CategorySynonymBase,  category_id: int):
+    db_item = models.CategorySynonym(synonym=synonym.synonym, category_id=category_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
 
+
+def create_category_synonym_by_name(db: Session, synonym: schemas.CategorySynonymBase,  category_name: str):
+    category = get_category_by_name(db=db, category_name=category_name)
+    db_item = models.CategorySynonym(synonym=synonym.synonym, category_id=category.id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
 
 

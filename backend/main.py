@@ -182,3 +182,15 @@ def update_item_by_title_to_order(order_id, item: schemas.OrderItemBaseNameAdd, 
         return {"info": "item updated to order"}
     else:
         raise HTTPException(status_code=400, detail="No item is added to order")
+
+
+@app.post("/category_by_id/{category_id}/synonyms", response_model=schemas.CategorySynonym)
+def write_category_synonyms_by_category_id(category_id, synonym: schemas.CategorySynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_category_synonym_by_id(db, category_id=category_id, synonym=synonym)
+    return synonyms
+
+
+@app.post("/category_by_name/{category_name}/synonyms", response_model=schemas.CategorySynonym)
+def write_category_synonyms_by_category_name(category_name, synonym: schemas.CategorySynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_category_synonym_by_name(db, category_name=category_name, synonym=synonym)
+    return synonyms
