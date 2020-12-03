@@ -116,3 +116,11 @@ class Order(OrderBase):
 
     class Config:
         orm_mode = True
+
+
+class SynonymCheckerBase(BaseModel):
+    synonym: str
+
+
+class SynonymCheckerCreate(SynonymCheckerBase):
+    pass
