@@ -12,6 +12,16 @@ class Category(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(50), unique=True, index=True)
     items = relationship("Item", back_populates="category")
+    synonyms = relationship("CategorySynonym", back_populates="category")
+
+
+class CategorySynonym(Base):
+    __tablename__ = "category_synonyms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(50), unique=True, index=True)
+    category_id = Column(Integer, ForeignKey("categories.id"))
+    category = relationship("Category", back_populates="synonyms", uselist=False)
 
 
 class Item(Base):
