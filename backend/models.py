@@ -33,6 +33,16 @@ class Item(Base):
     category_id = Column(Integer, ForeignKey("categories.id"))
     category = relationship("Category", back_populates="items")
     order_items = relationship("OrderItem", back_populates="item")
+    synonyms = relationship("ItemSynonym", back_populates="item")
+
+
+class ItemSynonym(Base):
+    __tablename__ = "item_synonyms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    synonym = Column(String(50), unique=True, index=True)
+    item_id = Column(Integer, ForeignKey("items.id"))
+    item = relationship("Item", back_populates="synonyms", uselist=False)
 
 
 class Order(Base):
