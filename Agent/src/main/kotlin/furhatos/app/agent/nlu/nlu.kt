@@ -181,6 +181,8 @@ class AddItem(var item: QuantifiedItem? = null): Intent(){
                 "Add @item to the shopping cart",
                 "I want to buy @item",
                 "I would like to buy @item",
+                "I'll get @item",
+                "I'll have @item",
                 "I want an @item")
     }
 }
