@@ -270,3 +270,17 @@ def remove_item_synonym_by_name(item_synonym_name: str, db: Session = Depends(ge
     if synonym is None:
         raise HTTPException(status_code=404, detail="Item not found")
     return synonym
+
+
+@app.delete("/item_synonym_by_name/{item_synonym_name}", response_model=schemas.ItemSynonym, status_code=200)
+def remove_item_synonym_by_name(item_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.delete_item_synonym_by_name(db, item_synonym_name=item_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.post("/synonym_checker")
+def synonym_checker(synonym: schemas.SynonymCheckerCreate, db: Session = Depends(get_db)):
+    synonyms = crud.synonym_checker(db, synonym=synonym)
+    return synonyms

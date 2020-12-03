@@ -280,3 +280,23 @@ def delete_item_synonym_by_name(db: Session, item_synonym_name: str):
         return None
     return synonym
 
+
+def synonym_checker(db: Session, synonym: schemas.SynonymCheckerBase):
+    categories = get_categories(db)
+    output = {}
+    for category in categories:
+        for synonym_c in category.synonyms:
+            if synonym_c.synonym == synonym.synonym:
+                output["type"] = "category"
+                output["parent_category"] = category.name
+                output["parent_item"] = None
+        for item in category.items:
+            for synonym_i in item.synonyms:
+                if synonym_i.synonym == synonym.synonym:
+                    output["type"] = "item"
+                    output["parent_item"] = item.name
+                    output["parent_category"] = category.name
+    return output
+
+
+
