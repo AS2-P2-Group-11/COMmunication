@@ -10,6 +10,8 @@ import furhatos.nlu.common.*
 import khttp.get
 import khttp.post
 
+operator fun Int?.plus(other: Int?): Int? = if (this != null && other != null) this + other else null
+
 data class OrderData (
         var status: String? = null,
         var id: Int? = null,
