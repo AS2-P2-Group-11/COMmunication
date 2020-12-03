@@ -43,6 +43,13 @@ val ChooseAction: State = state(Interaction) {
     }
     //What happens on response nothing?
 
+    onReentry {
+        random(
+                { furhat.ask("What can I help you with?")},
+                {}
+        )
+    }
+
     //If the user wants to place an order
     onResponse<PlaceOrder> {
         val urlForPost = "http://127.0.0.1:9000/order"
@@ -121,7 +128,11 @@ val ChooseAction: State = state(Interaction) {
     }
 
     onResponse {
-        furhat.say("I'm sorry, I didn't catch that.")
+        random(
+                {furhat.say("I'm sorry, I didn't catch that.")},
+                {furhat.say("Sorry?")},
+                {}
+        )
         furhat.say("You can place an order, change an order, or track an order")
         reentry()
     }

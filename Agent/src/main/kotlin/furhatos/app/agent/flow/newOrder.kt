@@ -179,7 +179,7 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
         goto(ReDoCategoryList(currentId))
     }
     onResponse {
-        furhat.ask ("That is not an option, if you do not want to add options you can checkout your order, remove items, or aborting the order")
+        furhat.ask ("That is not an option, if you do not want to add items you can checkout your order, remove items, or aborting the order")
         reentry()
     }
 }
