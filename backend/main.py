@@ -182,3 +182,91 @@ def update_item_by_title_to_order(order_id, item: schemas.OrderItemBaseNameAdd, 
         return {"info": "item updated to order"}
     else:
         raise HTTPException(status_code=400, detail="No item is added to order")
+
+
+@app.post("/category_by_id/{category_id}/synonyms", response_model=schemas.CategorySynonym)
+def write_category_synonyms_by_category_id(category_id, synonym: schemas.CategorySynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_category_synonym_by_id(db, category_id=category_id, synonym=synonym)
+    return synonyms
+
+
+@app.post("/category_by_name/{category_name}/synonyms", response_model=schemas.CategorySynonym)
+def write_category_synonyms_by_category_name(category_name, synonym: schemas.CategorySynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_category_synonym_by_name(db, category_name=category_name, synonym=synonym)
+    return synonyms
+
+
+@app.get("/category_synonym_by_id/{category_synonym_id}", response_model=schemas.CategorySynonym)
+def read_synonym_by_id(category_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.get_category_synonym_by_id(db, category_synonym_id=category_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.get("/category_synonym_by_name/{category_synonym_name}", response_model=schemas.CategorySynonym)
+def read_synonym_by_name(category_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.get_category_synonym_by_name(db, category_synonym_name=category_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/category_synonym_by_id/{category_synonym_id}", response_model=schemas.CategorySynonym, status_code=200)
+def remove_category_synonym_by_id(category_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.delete_category_synonym_by_id(db, category_synonym_id=category_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/category_synonym_by_name/{category_synonym_name}", response_model=schemas.CategorySynonym, status_code=200)
+def remove_category_synonym_by_name(category_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.delete_category_synonym_by_name(db, category_synonym_name=category_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.post("/item_by_id/{item_id}/synonyms", response_model=schemas.ItemSynonym)
+def write_item_synonyms_by_category_id(item_id, synonym: schemas.ItemSynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_item_synonym_by_id(db, item_id=item_id, synonym=synonym)
+    return synonyms
+
+
+@app.post("/item_by_name/{item_name}/synonyms", response_model=schemas.ItemSynonym)
+def write_item_synonyms_by_category_name(item_name, synonym: schemas.ItemSynonymCreate, db: Session = Depends(get_db)):
+    synonyms = crud.create_item_synonym_by_name(db, item_name=item_name, synonym=synonym)
+    return synonyms
+
+
+@app.get("/item_synonym_by_id/{item_synonym_id}", response_model=schemas.ItemSynonym)
+def read_item_synonym_by_id(item_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.get_item_synonym_by_id(db, item_synonym_id=item_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.get("/item_synonym_by_name/{item_synonym_name}", response_model=schemas.ItemSynonym)
+def read_item_synonym_by_name(item_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.get_item_synonym_by_name(db, item_synonym_name=item_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/item_synonym_by_id/{item_synonym_id}", response_model=schemas.ItemSynonym, status_code=200)
+def remove_item_synonym_by_id(item_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.delete_item_synonym_by_id(db, item_synonym_id=item_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/item_synonym_by_name/{item_synonym_name}", response_model=schemas.ItemSynonym, status_code=200)
+def remove_item_synonym_by_name(item_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.delete_item_synonym_by_name(db, item_synonym_name=item_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
