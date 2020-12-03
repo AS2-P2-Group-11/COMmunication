@@ -28,11 +28,11 @@ class CategorySynonymBase(BaseModel):
     synonym: str
 
 
-class CategorySynonymCreate(ItemBase):
+class CategorySynonymCreate(CategorySynonymBase):
     pass
 
 
-class CategorySynonym(ItemBase):
+class CategorySynonym(CategorySynonymBase):
     id: int
     category_id: int
 
@@ -51,7 +51,7 @@ class CategoryCreate(CategoryBase):
 class Category(CategoryBase):
     id: int
     items: List[Item] = []
-    synonyms: Optional[CategorySynonym]
+    synonyms: List[CategorySynonym] = []
 
     class Config:
         orm_mode = True
