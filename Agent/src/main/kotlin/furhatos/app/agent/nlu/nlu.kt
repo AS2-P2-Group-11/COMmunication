@@ -188,7 +188,7 @@ class AddItem(var item: QuantifiedItem? = null): Intent(){
 /**
  * Intent. The user wishes to remove a specific item from their shopping cart.
  */
-class RemoveItem(var item: Item): Intent(){
+class RemoveItem(var item: Item? = null): Intent(){
     override fun getExamples(lang: Language): List<String> {
         return listOf("I don't need @item",
                 "I'll remove an @item",
@@ -198,7 +198,7 @@ class RemoveItem(var item: Item): Intent(){
     }
 }
 
-class ChangeItem(var item: Item): Intent() {
+class ChangeItem(var item: Item? = null): Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("I want to change the @item",
                 "Let's change an @item",
