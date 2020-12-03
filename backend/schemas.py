@@ -24,6 +24,22 @@ class Item(ItemBase):
         orm_mode = True
 
 
+class ItemSynonymBase(BaseModel):
+    synonym: str
+
+
+class ItemSynonymCreate(ItemSynonymBase):
+    pass
+
+
+class ItemSynonym(ItemSynonymBase):
+    id: int
+    item_id: int
+
+    class Config:
+        orm_mode = True
+
+
 class CategorySynonymBase(BaseModel):
     synonym: str
 
