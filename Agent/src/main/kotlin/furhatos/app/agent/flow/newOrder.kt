@@ -7,6 +7,7 @@ import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
 import furhatos.nlu.common.*
+import furhatos.nlu.common.Number
 import khttp.*
 
 fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
@@ -205,10 +206,44 @@ fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentI
     }
     onResponse<RemoveItem> {
         val itemToRemove = it.intent.item
-        //Remove item from order here
-        //        ...
-        //
-        goto(ChooseShoppingCartAction(currentId))
+        val urlForGet = "http://127.0.0.1:9000/order/$currentId"
+        val response = get(urlForGet).text
+        val order = Gson().fromJson(response, OrderData::class.java)
+        val itemsInOrder = mutableListOf<String?>()
+        for( item in order.items!!) {
+            itemsInOrder.add(item.item?.name)
+        }
+        for (item in order.items!!){
+            if(item.item?.name==itemToRemove.toString().toLowerCase()){
+                goto(ChooseQuantityToRemove(itemToRemove.toString().toLowerCase(), item.quantity, currentId))
+            }
+        }
+        furhat.say("You have no "+itemToRemove.toString()+" in your shopping cart")
+        reentry()
+        //furhat.say("Your shopping cart currently consist of "+order.items.item.quantity+" "+item.item?.name)
+        //goto(ChooseQuantityToRemove(itemToRemove,currentId))
+    }
+    onResponse<RequestOptions> {
+        furhat.say ("If you do not want to remove an item, your choices are to checkout your order, add an item, or aborting the order")
+        reentry()
+    }
+}
+
+fun ChooseQuantityToRemove(itemToRemove: String, quantityInOrder: Int?, currentId: Any) = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("Your order currently has $quantityInOrder $itemToRemove , how many do you want to remove?")
+    }
+    onReentry {
+        furhat.ask("How many $itemToRemove do you want to remove?")
+    }
+    onResponse<Number> {
+        if(it.intent.value!! > quantityInOrder!!){
+            furhat.say("You only have $quantityInOrder $itemToRemove in your order")
+            reentry()
+        }
+        else{
+           goto(ConfirmRemove(quantityInOrder, itemToRemove, it.intent.value, currentId))
+        }
     }
     onResponse<RequestOptions> {
         furhat.say ("If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order")
@@ -220,3 +255,17 @@ fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentI
     }
 }
 
+fun ConfirmRemove(quantityInOrder: Int?, itemToRemove: String, quantityToRemove: Int?, currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
+    onEntry {
+        furhat.ask("Are you certain you want to remove $quantityToRemove $itemToRemove from your order?")
+    }
+    onResponse<Yes> {
+        val patchUrl = "http://127.0.0.1:9000/order/$currentId/item_by_name"
+        val values = mapOf("name" to itemToRemove.toLowerCase(), "quantity" to quantityInOrder!!-quantityToRemove!!)
+        khttp.patch(patchUrl, json=values )
+        goto(ChooseShoppingCartAction(currentId))
+    }
+    onResponse<No> {
+        goto(ChooseItemToRemove(currentId))
+    }
+}
