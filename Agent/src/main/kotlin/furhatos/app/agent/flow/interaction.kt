@@ -80,7 +80,7 @@ val ChooseAction: State = state(Interaction) {
         val idResponse = khttp.post(urlForPost, json=statusValue)
         val currentId = idResponse.jsonObject["id"]
 
-        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category.toString()
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category?.value
         val response = get(getItemsUrl).text
         val category = Gson().fromJson(response, CategoryData::class.java)
         furhat.say("The available items are")

@@ -132,8 +132,7 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
 
     //Prints out the list of items from the chosen category
     onResponse<ChooseCategory> {
-        println(it.intent.category)
-        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category.toString()
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category?.value
         val response = get(getItemsUrl).text
         println(response)
         val category = Gson().fromJson(response, CategoryData::class.java)
@@ -169,7 +168,7 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
 
     onResponse<AddItem> {
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_name"
-        val values = mapOf("name" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count.toString().toInt())
+        val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value)
         val postResponse = post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
@@ -205,7 +204,7 @@ fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentI
         furhat.ask("What item do you want remove?")
     }
     onResponse<RemoveItem> {
-        val itemToRemove = it.intent.item
+        val itemToRemove = it.intent.item?.value?.toLowerCase()
         val urlForGet = "http://127.0.0.1:9000/order/$currentId"
         val response = get(urlForGet).text
         val order = Gson().fromJson(response, OrderData::class.java)
@@ -214,8 +213,8 @@ fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentI
             itemsInOrder.add(item.item?.name)
         }
         for (item in order.items!!){
-            if(item.item?.name==itemToRemove.toString().toLowerCase()){
-                goto(ChooseQuantityToRemove(itemToRemove.toString().toLowerCase(), item.quantity, currentId))
+            if(item.item?.name==itemToRemove){
+                goto(ChooseQuantityToRemove(itemToRemove, item.quantity, currentId))
             }
         }
         furhat.say("You have no "+itemToRemove.toString()+" in your shopping cart")
@@ -229,7 +228,7 @@ fun ChooseItemToRemove(currentId: Any) = state(ChooseShoppingCartAction(currentI
     }
 }
 
-fun ChooseQuantityToRemove(itemToRemove: String, quantityInOrder: Int?, currentId: Any) = state(ChooseShoppingCartAction(currentId)){
+fun ChooseQuantityToRemove(itemToRemove: String?, quantityInOrder: Int?, currentId: Any) = state(ChooseShoppingCartAction(currentId)){
     onEntry {
         furhat.ask("Your order currently has $quantityInOrder $itemToRemove , how many do you want to remove?")
     }
@@ -255,13 +254,13 @@ fun ChooseQuantityToRemove(itemToRemove: String, quantityInOrder: Int?, currentI
     }
 }
 
-fun ConfirmRemove(quantityInOrder: Int?, itemToRemove: String, quantityToRemove: Int?, currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
+fun ConfirmRemove(quantityInOrder: Int?, itemToRemove: String?, quantityToRemove: Int?, currentId: Any): State = state(ChooseShoppingCartAction(currentId)){
     onEntry {
         furhat.ask("Are you certain you want to remove $quantityToRemove $itemToRemove from your order?")
     }
     onResponse<Yes> {
         val patchUrl = "http://127.0.0.1:9000/order/$currentId/item_by_name"
-        val values = mapOf("name" to itemToRemove.toLowerCase(), "quantity" to quantityInOrder!!-quantityToRemove!!)
+        val values = mapOf("name" to itemToRemove, "quantity" to quantityInOrder!!-quantityToRemove!!)
         khttp.patch(patchUrl, json=values )
         goto(ChooseShoppingCartAction(currentId))
     }
