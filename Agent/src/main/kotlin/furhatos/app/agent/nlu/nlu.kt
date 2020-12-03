@@ -301,6 +301,17 @@ class PlaceOrder: Intent() {
 }
 
 /**
+ * Intent. The user wants to change an existing order. Should only be called from root state.
+ */
+class TrackOrder: Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("I'd like to track my order",
+                "Track order",
+                "Track")
+    }
+}
+
+/**
  * Intent. The user wants to cancel an existing order. Should only be called from root state.
  */
 class CancelOrder: Intent() {
