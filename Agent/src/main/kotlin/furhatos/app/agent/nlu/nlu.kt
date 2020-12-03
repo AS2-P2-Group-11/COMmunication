@@ -310,7 +310,11 @@ class TrackOrder: Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf("I'd like to track my order",
                 "Track order",
-                "Track")
+                "Track",
+                "What's my order status?",
+                "I'd like to check my order status",
+                "I want to know where my order is",
+                "I want to know where my package is")
     }
 }
 
@@ -334,17 +338,4 @@ class ChangeOrder: Intent() {
                 "Modify an order",
                 "Change")
     }
-}
-
-/**
- * Intent. The user wants to check the status of an existing order. Should only be called from root state.
- */
-class CheckStatus: Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("What's my order status?",
-                "I'd like to check my order status",
-                "I want to know where my order is",
-                "I want to know where my package is")
-    }
-
 }

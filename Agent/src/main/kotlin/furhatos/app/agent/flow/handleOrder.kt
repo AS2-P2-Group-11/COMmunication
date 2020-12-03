@@ -26,7 +26,7 @@ fun GetOrderNumber(action: String) = state(ChooseAction){
         else{
             val order = Gson().fromJson(response, OrderData::class.java)
             if (action=="track"){
-                furhat.say ( "The order with number "+currentId+" is currently in the status"+order.status )
+                furhat.say ( "The order with number "+currentId+" is currently in the status "+order.status )
                 goto(AnythingElse)
             }
             else if (action=="change"){
