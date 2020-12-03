@@ -235,3 +235,48 @@ def delete_category_synonym_by_name(db: Session, category_synonym_name: str):
         return None
     return synonym
 
+
+def create_item_synonym_by_id(db: Session, synonym: schemas.ItemSynonymBase,  item_id: int):
+    db_item = models.ItemSynonym(synonym=synonym.synonym, item_id=item_id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def create_item_synonym_by_name(db: Session, synonym: schemas.ItemSynonymBase,  item_name: str):
+    item = get_item_by_title(db=db, item_title=item_name)
+    db_item = models.ItemSynonym(synonym=synonym.synonym, item_id=item.id)
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+def get_item_synonym_by_id(db: Session, item_synonym_id: int):
+    return db.query(models.ItemSynonym).filter(models.ItemSynonym.id == item_synonym_id).first()
+
+
+def get_item_synonym_by_name(db: Session, item_synonym_name: str):
+    return db.query(models.ItemSynonym).filter(models.ItemSynonym.synonym == item_synonym_name).first()
+
+
+def delete_item_synonym_by_id(db: Session, item_synonym_id: int):
+    synonym = get_item_synonym_by_id(db, item_synonym_id=item_synonym_id)
+    try:
+        db.delete(synonym)
+        db.commit()
+    except:
+        return None
+    return synonym
+
+
+def delete_item_synonym_by_name(db: Session, item_synonym_name: str):
+    synonym = get_item_synonym_by_name(db, item_synonym_name=item_synonym_name)
+    try:
+        db.delete(synonym)
+        db.commit()
+    except:
+        return None
+    return synonym
+
