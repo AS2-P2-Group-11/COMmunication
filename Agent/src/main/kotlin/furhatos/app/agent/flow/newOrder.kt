@@ -22,8 +22,17 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
             furhat.say("Your shopping cart is currently empty")
         }
         else{
+            val itemsInOrder = mutableListOf<String?>()
             for( item in order.items!!) {
-                furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.name)
+                val itemQuantity = item.quantity.toString()
+                val itemName = item.item?.name
+                itemsInOrder.add("$itemQuantity $itemName")
+            }
+            furhat.say("Your shopping cart currently consist of")
+            for (item in itemsInOrder){
+                if (item != null) {
+                    furhat.say ( item )
+                }
             }
         }
         furhat.ask("What do you want to do with it?")
