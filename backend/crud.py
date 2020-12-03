@@ -208,3 +208,30 @@ def create_category_synonym_by_name(db: Session, synonym: schemas.CategorySynony
     return db_item
 
 
+def get_category_synonym_by_id(db: Session, category_synonym_id: int):
+    return db.query(models.CategorySynonym).filter(models.CategorySynonym.id == category_synonym_id).first()
+
+
+def get_category_synonym_by_name(db: Session, category_synonym_name: str):
+    return db.query(models.CategorySynonym).filter(models.CategorySynonym.synonym == category_synonym_name).first()
+
+
+def delete_category_synonym_by_id(db: Session, category_synonym_id: int):
+    synonym = get_category_synonym_by_id(db, category_synonym_id=category_synonym_id)
+    try:
+        db.delete(synonym)
+        db.commit()
+    except:
+        return None
+    return synonym
+
+
+def delete_category_synonym_by_name(db: Session, category_synonym_name: str):
+    synonym = get_category_synonym_by_name(db, category_synonym_name=category_synonym_name)
+    try:
+        db.delete(synonym)
+        db.commit()
+    except:
+        return None
+    return synonym
+

@@ -194,3 +194,35 @@ def write_category_synonyms_by_category_id(category_id, synonym: schemas.Categor
 def write_category_synonyms_by_category_name(category_name, synonym: schemas.CategorySynonymCreate, db: Session = Depends(get_db)):
     synonyms = crud.create_category_synonym_by_name(db, category_name=category_name, synonym=synonym)
     return synonyms
+
+
+@app.get("/category_synonym_by_id/{category_synonym_id}", response_model=schemas.CategorySynonym)
+def read_synonym_by_id(category_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.get_category_synonym_by_id(db, category_synonym_id=category_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.get("/category_synonym_by_name/{category_synonym_name}", response_model=schemas.CategorySynonym)
+def read_synonym_by_name(category_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.get_category_synonym_by_name(db, category_synonym_name=category_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/category_synonym_by_id/{category_synonym_id}", response_model=schemas.CategorySynonym, status_code=200)
+def remove_category_synonym_by_id(category_synonym_id: int, db: Session = Depends(get_db)):
+    synonym = crud.delete_category_synonym_by_id(db, category_synonym_id=category_synonym_id)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
+
+
+@app.delete("/category_synonym_by_name/{category_synonym_name}", response_model=schemas.CategorySynonym, status_code=200)
+def remove_category_synonym_by_name(category_synonym_name: str, db: Session = Depends(get_db)):
+    synonym = crud.delete_category_synonym_by_name(db, category_synonym_name=category_synonym_name)
+    if synonym is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return synonym
