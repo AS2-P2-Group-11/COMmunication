@@ -166,11 +166,21 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
     }
 
     onResponse<AddItem> {
-        val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_name"
+        val orderByNameUrl= "http://127.0.0.1:9000/order/$currentId/item_by_name"
+        val orderByIdUrl="http://127.0.0.1:9000/order/$currentId"
+
+        val response = get(orderByIdUrl).text
+        val order = Gson().fromJson(response, OrderData::class.java)
+        for( item in order.items!!) {
+            if (item.item?.name==it.intent.item?.item?.value){
+                val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value.plus(item.quantity))
+                khttp.patch(orderByNameUrl, json=values )
+                furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+                goto(ChooseShoppingCartAction(currentId))
+            }
+        }
         val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value)
-        val postResponse = post(postOrderUrl, json=values)
-        val chosenItem = it.intent.item
-        //The chosen item should be added here
+        post(orderByNameUrl, json=values)
         furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
