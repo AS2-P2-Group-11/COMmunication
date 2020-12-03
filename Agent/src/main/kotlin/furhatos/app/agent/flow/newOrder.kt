@@ -105,7 +105,7 @@ fun ListShoppingCategories(currentId: Any) = state(Interaction){
     }
 }
 
-fun ListShoppingItems(currentId: Any) = state(Interaction){
+fun ListShoppingItems(currentId: Any) = state(ListShoppingItemsByCategory(currentId)){
     onEntry {
         furhat.ask ("Do you want me to list the available items in some category?")
     }
@@ -117,11 +117,6 @@ fun ListShoppingItems(currentId: Any) = state(Interaction){
 
     onResponse<No> {
         goto(AddShoppingItems(currentId))
-    }
-
-    onResponse {
-        furhat.say ( "Sorry, I did not catch that" )
-        reentry()
     }
 }
 
@@ -152,11 +147,6 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
 
     onResponse<No> {
         goto(AddShoppingItems(currentId))
-    }
-
-    onResponse {
-        furhat.say ( "Sorry, I did not catch that" )
-        reentry()
     }
 }
 
