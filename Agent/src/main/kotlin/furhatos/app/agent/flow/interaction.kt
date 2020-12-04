@@ -68,7 +68,7 @@ val ChooseAction: State = state(Interaction) {
         val currentId = idResponse.jsonObject["id"]
 
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_name"
-        val values = mapOf("name" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count.toString().toInt())
+        val values = mapOf("name" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count?.value)
         val postResponse = post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
