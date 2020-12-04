@@ -288,10 +288,12 @@ fun CheckSynonyms(baseName: String, synonym_type: String? = "category"): String{
     )
 
     val getSynonymUrl ="http://127.0.0.1:9000/synonym_checker"
-    val getSynonyms = post(getSynonymUrl, mapOf("synonym" to baseName)).text
+    println(baseName)
+    val jsonString = Gson().toJson(mapOf("synonym" to baseName))
+    val getSynonyms = post(getSynonymUrl, data=jsonString).text
     val synonymResponse = Gson().fromJson(getSynonyms, SynonymData::class.java)
     var name = ""
-    if (synonymResponse.type != null){
+    if (getSynonyms != "{}"){
         if (synonym_type == "category"){
             name = synonymResponse.parent_category!!
         } else {

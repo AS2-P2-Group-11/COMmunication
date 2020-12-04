@@ -42,6 +42,7 @@ val Start = state(Interaction) {
 val ChooseAction: State = state(Interaction) {
     onEntry {
         furhat.ask("What can I help you with?")
+        CheckSynonyms("laptop")
     }
     //What happens on response nothing?
 
