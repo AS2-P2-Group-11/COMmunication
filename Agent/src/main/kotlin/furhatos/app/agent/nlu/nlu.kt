@@ -75,27 +75,26 @@ class Remove: Intent() {
 data class CategoryData (
         var name: String,
         var id: Int? = null,
-        var items: List<ItemData>? = null
+        var items: List<ItemData>? = null,
+        var synonyms: List<String>
 )
 
 data class ItemData(
         var name: String,
         var id: Int? = null,
         var category_id: Int? = null,
-        var price: Int? = null
+        var price: Int? = null,
+        var synonyms: List<String>
 )
-
-
-
 
 
 /**
  * EnumEntity. All available categories.
  * Currently hardcoded, should be fetched from API.
  */
-class Category: EnumEntity(stemming = true, speechRecPhrases = true) {
+class Category: EnumEntity() {
     fun getNames(aList: List<CategoryData>): List<String>{
-        return aList.map { it.name }.toList()
+        return aList.map { it.name }.toList() + aList.map { it.synonyms }.toList().flatten()
     }
 
     override fun getEnum(lang: Language): List<String> {
@@ -115,8 +114,8 @@ class CategoryList: ArrayList<CategoryData>()
  * Currently hardcoded, should be fetched from API.
  */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
-    fun getNames(aList: List<ItemData>): List<String> {
-        return aList.map { it.name }.toList()
+    fun getNames(aList: List<ItemData>): List<String>{
+        return aList.map { it.name }.toList() + aList.map { it.synonyms }.toList().flatten()
     }
 
     fun getItems(aList: List<CategoryData>): List<ItemData>{
@@ -128,6 +127,7 @@ class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
         }
         return returnList.flatten()
     }
+
 
     override fun getEnum(lang: Language): List<String> {
         val targetURL = "http://127.0.0.1:9000/categories"
