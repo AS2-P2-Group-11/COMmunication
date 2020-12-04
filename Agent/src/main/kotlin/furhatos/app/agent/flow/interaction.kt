@@ -143,14 +143,16 @@ val ChooseAction: State = state(Interaction) {
     }
 }
 
-val AnythingElse = state(Interaction){
+val AnythingElse: State =  state(ChooseAction){
     onEntry {
-        furhat.ask("Is there anything else I can help you with today?")
+        furhat.ask("Is there anything else I can help you with today?") // Hampus issue 1
     }
 
     onResponse<Yes> {
         goto(ChooseAction)
     }
+
+
 
     onResponse<No> {
         furhat.say("Have a nice day!")
