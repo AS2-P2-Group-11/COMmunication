@@ -1,6 +1,7 @@
 package furhatos.app.agent.flow
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import furhatos.app.agent.nlu.*
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
@@ -160,9 +161,7 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
         val name = CheckSynonyms(it.intent.category!!.value!!, "category")
         val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+name
         val response = get(getItemsUrl).text
-        println(response)
         val category = Gson().fromJson(response, CategoryData::class.java)
-        println(category)
         furhat.say("The available items are")
         for(item in category.items!!) {
             furhat.say(item.name + " For the price of " + item.price)
@@ -301,18 +300,20 @@ fun ConfirmRemove(quantityInOrder: Int?, itemToRemove: String?, quantityToRemove
     }
 }
 
+data class SynonymCheckData(
+        val type: String? = null,
+        val parent_category: String? = null,
+        val parent_item: String? = null
+)
+
 fun CheckSynonyms(baseName: String, synonym_type: String? = "category"): String{
-    data class SynonymData(
-            val type: String? = null,
-            val parent_category: String? = null,
-            val parent_item: String? = null
-    )
+
 
     val getSynonymUrl ="http://127.0.0.1:9000/synonym_checker"
-    println(baseName)
     val jsonString = Gson().toJson(mapOf("synonym" to baseName))
     val getSynonyms = post(getSynonymUrl, data=jsonString).text
-    val synonymResponse = Gson().fromJson(getSynonyms, SynonymData::class.java)
+    val gson = GsonBuilder().serializeNulls().create()
+    val synonymResponse = gson.fromJson(getSynonyms, SynonymCheckData::class.java)
     var name = ""
     if (getSynonyms != "{}"){
         if (synonym_type == "category"){

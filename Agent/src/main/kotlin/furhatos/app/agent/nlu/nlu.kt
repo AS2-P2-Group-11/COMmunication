@@ -76,7 +76,7 @@ data class CategoryData (
         var name: String,
         var id: Int? = null,
         var items: List<ItemData>? = null,
-        var synonyms: List<String>
+        var synonyms: List<SynonymData>
 )
 
 data class ItemData(
@@ -84,7 +84,13 @@ data class ItemData(
         var id: Int? = null,
         var category_id: Int? = null,
         var price: Int? = null,
-        var synonyms: List<String>
+        var synonyms: List<SynonymData>
+)
+
+data class SynonymData(
+        val synonym: String? = null,
+        val id: Int? = null,
+        val category_id: Int? = null
 )
 
 
@@ -94,7 +100,8 @@ data class ItemData(
  */
 class Category: EnumEntity() {
     fun getNames(aList: List<CategoryData>): List<String>{
-        return aList.map { it.name }.toList() + aList.map { it.synonyms }.toList().flatten()
+        val synonymList = aList.map{ it.synonyms }.toList().flatten()
+        return aList.map { it.name }.toList() + synonymList.map { it.synonym!! }.toList()
     }
 
     override fun getEnum(lang: Language): List<String> {
@@ -115,7 +122,8 @@ class CategoryList: ArrayList<CategoryData>()
  */
 class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
     fun getNames(aList: List<ItemData>): List<String>{
-        return aList.map { it.name }.toList() + aList.map { it.synonyms }.toList().flatten()
+        val synonymList = aList.map{ it.synonyms }.toList().flatten()
+        return aList.map { it.name }.toList() + synonymList.map { it.synonym!! }.toList()
     }
 
     fun getItems(aList: List<CategoryData>): List<ItemData>{
@@ -133,7 +141,6 @@ class Item: EnumEntity(stemming = true, speechRecPhrases = true) {
         val targetURL = "http://127.0.0.1:9000/categories"
         val response = khttp.get(targetURL).text
         val categories = Gson().fromJson(response, CategoryList::class.java)
-        println(getNames(getItems(categories)))
         return getNames(getItems(categories))
         // return listOf("Lenovo", "Apple", "Asus")
     }
