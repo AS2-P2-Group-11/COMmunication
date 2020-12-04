@@ -68,11 +68,12 @@ val ChooseAction: State = state(Interaction) {
         val currentId = idResponse.jsonObject["id"]
 
         val postOrderUrl= "http://127.0.0.1:9000/order/$currentId/item_by_name"
-        val values = mapOf("name" to it.intent.item?.item.toString(), "quantity" to it.intent.item?.count.toString().toInt())
+        val name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
+        val values = mapOf("name" to name, "quantity" to it.intent.item?.count.toString().toInt())
         val postResponse = post(postOrderUrl, json=values)
         val chosenItem = it.intent.item
         //The chosen item should be added here
-        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+        furhat.say("${chosenItem?.count.toString()} ${chosenItem?.item.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
 
@@ -82,7 +83,8 @@ val ChooseAction: State = state(Interaction) {
         val idResponse = khttp.post(urlForPost, json=statusValue)
         val currentId = idResponse.jsonObject["id"]
 
-        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category?.value
+        val name = CheckSynonyms(it.intent.category?.value!!, "category")
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+name
         val response = get(getItemsUrl).text
         val category = Gson().fromJson(response, CategoryData::class.java)
         furhat.say("The available items are")

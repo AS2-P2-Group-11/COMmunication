@@ -136,7 +136,8 @@ fun ListShoppingItemsByCategory(currentId: Any) = state(Interaction){
 
     //Prints out the list of items from the chosen category
     onResponse<ChooseCategory> {
-        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+it.intent.category?.value
+        val name = CheckSynonyms(it.intent.category!!.value!!, "category")
+        val getItemsUrl = "http://127.0.0.1:9000/category_by_name/"+name
         val response = get(getItemsUrl).text
         println(response)
         val category = Gson().fromJson(response, CategoryData::class.java)
@@ -179,7 +180,8 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
                 goto(ChooseShoppingCartAction(currentId))
             }
         }
-        val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value)
+        val item_name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
+        val values = mapOf("name" to item_name.toLowerCase(), "quantity" to it.intent.item?.count?.value)
         post(orderByNameUrl, json=values)
         furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
@@ -276,4 +278,28 @@ fun ConfirmRemove(quantityInOrder: Int?, itemToRemove: String?, quantityToRemove
     onResponse<No> {
         goto(ChooseItemToRemove(currentId))
     }
+}
+
+fun CheckSynonyms(baseName: String, synonym_type: String? = "category"): String{
+    data class SynonymData(
+            val type: String? = null,
+            val parent_category: String? = null,
+            val parent_item: String? = null
+    )
+
+    val getSynonymUrl ="http://127.0.0.1:9000/synonym_checker"
+    val getSynonyms = post(getSynonymUrl, mapOf("synonym" to baseName)).text
+    val synonymResponse = Gson().fromJson(getSynonyms, SynonymData::class.java)
+    var name = ""
+    if (synonymResponse.type != null){
+        if (synonym_type == "category"){
+            name = synonymResponse.parent_category!!
+        } else {
+            name = synonymResponse.parent_item!!
+        }
+
+    } else {
+        name = baseName
+    }
+    return name
 }
