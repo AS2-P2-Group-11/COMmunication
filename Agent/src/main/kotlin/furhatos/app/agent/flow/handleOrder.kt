@@ -95,10 +95,11 @@ fun ConfirmCancel(currentId: Any) = state(Interaction){
 
 fun ChooseItemToChange(currentId: Any, order: OrderData) = state(Interaction){
     onEntry {
+        furhat.say("Your shopping cart currently consist of ")
         for( item in order.items!!) {
-            furhat.say("Your shopping cart currently consist of "+item.quantity+" "+item.item?.name)
-            furhat.ask("To change the quantity of an item, specify the item")
+            furhat.say(""+item.quantity + " " + item.item?.name) //Hampus issue 2
         }
+        furhat.ask("To change the quantity of an item, specify the item")
 
     }
 
