@@ -19,6 +19,16 @@ In order to setup the project, just clone the project. If you have installed git
 
     git clone https://github.com/AS2-P2-Group-11/COMmunicationBackend.git
     bash build-env.sh
+### Start the agent
+To start the agent just enter the command below:
+
+    docker-compose -d
+Important note: For the first time when you run build-env.sh command, there is no need to start the project.
+
+### Stop the agent
+To stop the agent just enter the command below:
+
+    docker-compose down
     
 ## Access the documentation
 To access the documentation, after installation and seting up, open either one of:
