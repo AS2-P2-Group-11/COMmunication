@@ -13,7 +13,13 @@ services:
   api:
     image: p2_11_api:1.0
     network_mode: "host"
-    volumes:
-      - .:/app/
     depends_on:
       - mysql
+    command: ["bash","-c", "/app/backend/wait-for-it.sh","uvicorn", "main:app", "--reload", "--port", "9000" ]
+  agent:
+    image: p2_11_agent:1.0
+    network_mode: "host"
+    depends_on:
+      - api
+    command: ["bash","-c", "/Agent/wait-for-it.sh", "java", "-jar", "./build/libs/Agent-all.skill" ]
+
