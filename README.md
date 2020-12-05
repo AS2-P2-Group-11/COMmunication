@@ -13,7 +13,7 @@ For running this project, there is a need to install docker and docker compose f
 - https://docs.docker.com/engine/install/
 - https://docs.docker.com/compose/install/
 
-Before running the skill, you need to run the skill separately. 
+Before running the skill, you need to run the SDK separately. 
 ### Installation
 In order to setup the project, just clone the project. If you have installed git cli, follow the instructions below:
 
