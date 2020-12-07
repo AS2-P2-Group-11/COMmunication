@@ -99,7 +99,7 @@ fun ChooseItemToChange(currentId: Any, order: OrderData) = state(Interaction){
     }
 
     onResponse<ChangeItem> {
-        val item = it.intent.item?.value
+        val item = CheckSynonyms(it.intent.item?.value!!, "item")
         goto(QuantityToKeep(item, currentId))
     }
 }
