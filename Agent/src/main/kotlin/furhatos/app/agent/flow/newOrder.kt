@@ -39,6 +39,10 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
         furhat.ask("What do you want to do with it?")
     }
 
+    onReentry{
+        furhat.ask ("That is not an option, Your can checkout your order, add items, remove items, or aborting the order")
+    }
+
     //The user wants to checkout (place) his order
     onResponse<Checkout> {
         //Get current items of your order from API
@@ -102,10 +106,6 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
     onResponse<RequestOptions> {
         furhat.say ("Your choices are to checkout your order, add items, remove items, or aborting the order")
         reentry()
-    }
-    onResponse {
-        furhat.ask ("That is not an option, Your can checkout your order, add items, remove items, or aborting the order")
-        //reentry()
     }
 }
 
@@ -209,10 +209,6 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
     onResponse<RequestOptions> {
         goto(ReDoCategoryList(currentId))
     }
-    onResponse {
-        furhat.ask ("That is not an option, if you do not want to add items you can checkout your order, remove items, or aborting the order")
-        reentry()
-    }
 }
 
 fun ReDoCategoryList(currentId: Any) = state(ChooseShoppingCartAction(currentId)){
@@ -277,10 +273,6 @@ fun ChooseQuantityToRemove(itemToRemove: String?, quantityInOrder: Int?, current
     }
     onResponse<RequestOptions> {
         furhat.say ("If you do not want to change or remove an item, your choices are to checkout your order, add an item, or aborting the order")
-        reentry()
-    }
-    onResponse{
-        furhat.say("I'm sorry, I did not catch that")
         reentry()
     }
 }

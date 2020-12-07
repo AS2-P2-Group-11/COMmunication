@@ -68,11 +68,6 @@ fun GetOrderNumber(action: String) = state(ChooseAction){
         furhat.say("Specify your tracking number or abort the order tracking")
         reentry()
     }
-    onResponse {
-        furhat.say("I'm sorry, I didn't catch that.")
-        furhat.say("Specify your tracking number or abort the order tracking")
-        reentry()
-    }
 }
 
 fun ConfirmCancel(currentId: Any) = state(Interaction){
