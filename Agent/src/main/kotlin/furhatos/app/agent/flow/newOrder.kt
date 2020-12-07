@@ -70,17 +70,18 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
 
         val response = get(orderByIdUrl).text
         val order = Gson().fromJson(response, OrderData::class.java)
+        val item_name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
         for( item in order.items!!) {
-            if (item.item?.name==it.intent.item?.item?.value){
-                val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value.plus(item.quantity))
+            if (item.item?.name==item_name){
+                val values = mapOf("name" to item_name.toLowerCase(), "quantity" to it.intent.item?.count?.value.plus(item.quantity))
                 khttp.patch(orderByNameUrl, json=values )
-                furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+                furhat.say("${it.intent.item?.count.toString()} ${item_name} is added to your shopping order")
                 goto(ChooseShoppingCartAction(currentId))
             }
         }
-        val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value)
+        val values = mapOf("name" to item_name.toLowerCase(), "quantity" to it.intent.item?.count?.value)
         post(orderByNameUrl, json=values)
-        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+        furhat.say("${it.intent.item?.count.toString()} ${item_name} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
 
@@ -192,18 +193,19 @@ fun AddShoppingItems(currentId: Any): State = state(ChooseShoppingCartAction(cur
 
         val response = get(orderByIdUrl).text
         val order = Gson().fromJson(response, OrderData::class.java)
+        val item_name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
         for( item in order.items!!) {
-            if (item.item?.name==it.intent.item?.item?.value){
-                val values = mapOf("name" to it.intent.item?.item?.value?.toLowerCase(), "quantity" to it.intent.item?.count?.value.plus(item.quantity))
+            if (item.item?.name==item_name){
+                val values = mapOf("name" to item_name.toLowerCase(), "quantity" to it.intent.item?.count?.value.plus(item.quantity))
                 khttp.patch(orderByNameUrl, json=values )
-                furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+                furhat.say("${it.intent.item?.count.toString()} ${item_name} is added to your shopping order")
                 goto(ChooseShoppingCartAction(currentId))
             }
         }
-        val item_name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
+        //val item_name = CheckSynonyms(it.intent.item?.item?.value!!, "item")
         val values = mapOf("name" to item_name.toLowerCase(), "quantity" to it.intent.item?.count?.value)
         post(orderByNameUrl, json=values)
-        furhat.say("${it.intent.item?.count.toString()} ${it.intent.item?.item.toString()} is added to your shopping order")
+        furhat.say("${it.intent.item?.count.toString()} ${item_name} is added to your shopping order")
         goto(ChooseShoppingCartAction(currentId))
     }
     onResponse<RequestOptions> {
