@@ -110,14 +110,23 @@ fun QuantityToKeep(item: String?, currentId: Any) = state(Interaction){
     }
 
     onResponse<Number> {
-        val quantity=it.intent.toString().toInt()
+        //val quantity=it.intent.toString().toInt()
+        val quantity=it.intent.value
         val patchUrl = "http://127.0.0.1:9000/order/$currentId/item_by_name"
-        val values = mapOf("name" to item?.toLowerCase(), "quantity" to quantity)
-        val response = khttp.patch(patchUrl, json=values )
-
+        //val values = mapOf("name" to item?.toLowerCase(), "quantity" to quantity)
+        //val response = khttp.patch(patchUrl, json=values)
         val urlForGet = "http://127.0.0.1:9000/order/$currentId"
         val itemResponse = get(urlForGet).text
         val order = Gson().fromJson(itemResponse, OrderData::class.java)
+        if (item !in (order.items?.map { it.item?.name } as ArrayList).toArray()){// suggestion by Hampus
+            val values = mapOf("name" to item, "quantity" to quantity)
+            post(patchUrl, json=values)
+        }
+        else {
+            val values = mapOf("name" to item?.toLowerCase(), "quantity" to quantity)
+            val response = khttp.patch(patchUrl, json=values)
+        }
+
         if (order.items==null){
             furhat.say("The shopping cart is empty and can not be checked out!")
             goto(ChooseShoppingCartAction(currentId))
