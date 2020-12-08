@@ -162,12 +162,13 @@ def add_item_by_title_to_order(db: Session, order_id: int, item: schemas.OrderIt
 def update_item_by_id_to_order(db: Session, order_id: int, items: schemas.OrderItemBaseAdd):
     order = get_order_by_id(db, order_id=order_id)
     for item in order.items:
-        if items.quantity > 0:
-            if item.item.id == items.item_id:
-                item.quantity = items.quantity
-        else:
-            db.delete(item)
-            db.commit()
+        if item.item.id == items.item_id:
+            if items.quantity > 0:
+
+                    item.quantity = items.quantity
+            else:
+                db.delete(item)
+                db.commit()
     try:
         db.commit()
     except:
@@ -178,12 +179,12 @@ def update_item_by_id_to_order(db: Session, order_id: int, items: schemas.OrderI
 def update_item_by_title_to_order(db: Session, order_id: int, items: schemas.OrderItemBaseNameAdd):
     order = get_order_by_id(db, order_id=order_id)
     for item in order.items:
-        if items.quantity > 0:
-            if item.item.name == items.name:
-                item.quantity = items.quantity
-        else:
-            db.delete(item)
-            db.commit()
+        if item.item.name == items.name:
+            if items.quantity > 0:
+                    item.quantity = items.quantity
+            else:
+                db.delete(item)
+                db.commit()
     try:
         db.commit()
     except:
