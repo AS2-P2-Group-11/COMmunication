@@ -90,7 +90,7 @@ val ChooseAction: State = state(Interaction) {
         val category = Gson().fromJson(response, CategoryData::class.java)
         furhat.say("The available items are")
         for(item in category.items!!) {
-            furhat.say(item.name + " For the price of " + item.price)
+            furhat.say(item.name + " for the price of " + item.price)
         }
         if (it.intent.category != null){
             goto(AddShoppingItems(currentId))

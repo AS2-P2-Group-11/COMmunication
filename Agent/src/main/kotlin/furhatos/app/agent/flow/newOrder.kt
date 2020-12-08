@@ -112,7 +112,10 @@ fun ChooseShoppingCartAction(currentId: Any): State = state(Interaction){
 
 fun ListShoppingCategories(currentId: Any) = state(Interaction){
     onEntry {
-        furhat.ask ("Do you want me to list the available categories of items in the store?")
+        random(
+                {furhat.ask ("Do you want me to list our item categories?")},
+                {furhat.ask ("Shall I list the available item categories?")}
+        )
     }
 
     //Prints out the list "Category" gotten from the nlu
@@ -139,7 +142,7 @@ fun ListShoppingCategories(currentId: Any) = state(Interaction){
 
 fun ListShoppingItems(currentId: Any) = state(ListShoppingItemsByCategory(currentId)){
     onEntry {
-        furhat.ask ("Do you want me to list the available items in some category?")
+        furhat.ask ("Are you interested in some category?")
     }
 
     //Prints out the list "Items" gotten from the nlu
