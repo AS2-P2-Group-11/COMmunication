@@ -19,6 +19,7 @@ class RequestOptions: Intent() {
                 "What can I do?",
                 "What are the alternatives?",
                 "What are my options?",
+                "What are the options?",
                 "List my options, please",
                 "List the options",
                 "Can you list the categories again, please?",
@@ -197,9 +198,10 @@ class AddItem(var item: QuantifiedItem? = null): Intent(){
 /**
  * Intent. The user wishes to remove a specific item from their shopping cart.
  */
-class RemoveItem(var item: Item? = null): Intent(){
+class RemoveItem(var item: QuantifiedItem? = null): Intent(){
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I don't need @item",
+        return listOf("@item",
+                "I don't need @item",
                 "I'll remove an @item",
                 "Remove the @item from the shopping cart",
                 "I don't need the @item",
